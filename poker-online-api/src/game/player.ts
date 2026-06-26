@@ -1,0 +1,29 @@
+import type { Card } from './card.js'
+
+export interface Player {
+  id: string
+  name: string
+  seat: number
+  chips: number
+  holeCards: Card[]
+  currentBet: number
+  totalContributed: number
+  hasFolded: boolean
+  isAllIn: boolean
+  connected: boolean
+}
+
+export function createPlayer(id: string, name: string, seat: number, chips: number): Player {
+  return {
+    id,
+    name,
+    seat,
+    chips,
+    holeCards: [],
+    currentBet: 0,
+    totalContributed: 0,
+    hasFolded: false,
+    isAllIn: false,
+    connected: true
+  }
+}
