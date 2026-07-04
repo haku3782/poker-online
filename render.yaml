@@ -2,6 +2,7 @@ services:
   - type: web
     name: poker-online-api
     runtime: node
+    plan: free
     rootDir: poker-online-api
     buildCommand: npm ci && npm run build
     startCommand: node dist/index.js
