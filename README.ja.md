@@ -26,26 +26,22 @@
 
 ```mermaid
 graph TD
-    subgraph runtime["ランタイム — ユーザーリクエストフロー"]
-        C1["ブラウザ A\nプレイヤー 1"]
-        C2["ブラウザ B\nプレイヤー 2"]
-        API["poker-online-api\nNode.js + Socket.IO\nRender"]
+    C1((プレイヤー 1\nブラウザ))
+    C2((プレイヤー 2\nブラウザ))
+    WEB["poker-online-web\nReact + Vite · Vercel"]
+    API["poker-online-api\nNode.js + Socket.IO · Render"]
 
-        C1 -- "1 player_action（WebSocket）" --> API
-        API -- "2 バリデーション・ゲーム状態更新" --> API
-        API -- "3 game_state・手札表示あり" --> C1
-        API -- "3 game_state・手札非表示" --> C2
-    end
+    C1 -->|"1. サイトにアクセス"| WEB
+    C2 -->|"1. サイトにアクセス"| WEB
+    C1 -- "2 player_action（WebSocket）" --> API
+    API -- "3 game_state・手札表示あり" --> C1
+    API -. "3 game_state・手札非表示" .-> C2
 
-    subgraph cicd["CI / デプロイ（mainへのPushで実行）"]
-        GH["GitHub · main"]
-        GHA["GitHub Actions\nvitest + vite build"]
-        RND["Render\nAPI 自動デプロイ"]
-        VCL["Vercel\nWeb 自動デプロイ"]
-
-        GH -.-> GHA
-        GH -.-> RND
-        GH -.-> VCL
+    subgraph "CI/CD（mainへのPushで実行）"
+        Dev((開発者)) -.->|"git push"| Repo[(GitHub)]
+        Repo -.->|"トリガー"| Actions[GitHub Actions<br/>vitest + vite build]
+        Repo -.->|"自動デプロイ"| WEB
+        Repo -.->|"自動デプロイ"| API
     end
 ```
 

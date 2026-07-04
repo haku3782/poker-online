@@ -26,26 +26,22 @@ Real-time multiplayer Texas Hold'em poker — browser-based, virtual chips only.
 
 ```mermaid
 graph TD
-    subgraph runtime["Runtime — User Request Flow"]
-        C1["Browser A\nPlayer 1"]
-        C2["Browser B\nPlayer 2"]
-        API["poker-online-api\nNode.js + Socket.IO\nRender"]
+    C1((Player 1\nBrowser))
+    C2((Player 2\nBrowser))
+    WEB["poker-online-web\nReact + Vite · Vercel"]
+    API["poker-online-api\nNode.js + Socket.IO · Render"]
 
-        C1 -- "1 player_action (WebSocket)" --> API
-        API -- "2 validate & update game state" --> API
-        API -- "3 game_state · holeCards visible" --> C1
-        API -- "3 game_state · holeCards hidden" --> C2
-    end
+    C1 -->|"1. Access Site"| WEB
+    C2 -->|"1. Access Site"| WEB
+    C1 -- "2 player_action (WebSocket)" --> API
+    API -- "3 game_state · holeCards visible" --> C1
+    API -. "3 game_state · holeCards hidden" .-> C2
 
-    subgraph cicd["CI / Deploy (on push to main)"]
-        GH["GitHub · main"]
-        GHA["GitHub Actions\nvitest + vite build"]
-        RND["Render\nauto-deploy API"]
-        VCL["Vercel\nauto-deploy Web"]
-
-        GH -.-> GHA
-        GH -.-> RND
-        GH -.-> VCL
+    subgraph "CI/CD (on push to main)"
+        Dev((Developer)) -.->|"git push"| Repo[(GitHub)]
+        Repo -.->|"trigger"| Actions[GitHub Actions<br/>vitest + vite build]
+        Repo -.->|"auto-deploy"| WEB
+        Repo -.->|"auto-deploy"| API
     end
 ```
 
