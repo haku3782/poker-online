@@ -1,12 +1,46 @@
 import type { Server, Socket } from 'socket.io'
-import { applyAction, startHand } from './game/gameEngine.js'
+import { applyAction, forfeitPlayer, startHand } from './game/gameEngine.js'
 import type { ActionType } from './game/gameEngine.js'
 import { RoomManager } from './game/room.js'
+
+const TURN_TIMEOUT_MS = 30_000
 
 const manager = new RoomManager()
 
 // socket.id → { roomId, playerId }
 const socketToPlayer = new Map<string, { roomId: string; playerId: string }>()
+
+// roomId → active turn timer
+const turnTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+function clearTurnTimer(roomId: string): void {
+  const t = turnTimers.get(roomId)
+  if (t !== undefined) {
+    clearTimeout(t)
+    turnTimers.delete(roomId)
+  }
+}
+
+function setTurnTimer(io: Server, roomId: string): void {
+  clearTurnTimer(roomId)
+  const room = manager.getRoom(roomId)
+  if (!room || room.status !== 'playing' || room.bettingRound === 'showdown' || !room.currentTurnPlayerId) return
+
+  const playerId = room.currentTurnPlayerId
+  const t = setTimeout(() => {
+    turnTimers.delete(roomId)
+    const r = manager.getRoom(roomId)
+    if (!r || r.currentTurnPlayerId !== playerId) return
+    try {
+      applyAction(r, playerId, { type: 'fold' })
+      broadcastGameState(io, roomId)
+      setTurnTimer(io, roomId)
+    } catch {
+      // hand may have ended between timer set and fire
+    }
+  }, TURN_TIMEOUT_MS)
+  turnTimers.set(roomId, t)
+}
 
 function broadcastGameState(io: Server, roomId: string): void {
   const room = manager.getRoom(roomId)
@@ -58,9 +92,23 @@ function handleLeave(io: Server, socket: Socket): void {
   if (!info) return
   socketToPlayer.delete(socket.id)
   socket.leave(info.roomId)
+
+  const room = manager.getRoom(info.roomId)
+  if (room && room.status === 'playing' && room.bettingRound !== 'showdown') {
+    // Auto-fold before removing — keeps hand consistent
+    clearTurnTimer(info.roomId)
+    forfeitPlayer(room, info.playerId)
+  }
+
   manager.leaveRoom(info.roomId, info.playerId)
   socket.emit('room_left', { roomId: info.roomId })
-  broadcastGameState(io, info.roomId)
+
+  if (manager.getRoom(info.roomId)) {
+    broadcastGameState(io, info.roomId)
+    setTurnTimer(io, info.roomId)
+  } else {
+    clearTurnTimer(info.roomId)
+  }
 }
 
 export function registerHandlers(io: Server, socket: Socket): void {
@@ -121,6 +169,7 @@ export function registerHandlers(io: Server, socket: Socket): void {
       if (!room) throw new Error('Room not found')
       startHand(room)
       broadcastGameState(io, info.roomId)
+      setTurnTimer(io, info.roomId)
     } catch (err) {
       socket.emit('error', { message: (err as Error).message })
     }
@@ -132,8 +181,10 @@ export function registerHandlers(io: Server, socket: Socket): void {
       if (!info) throw new Error('Not in a room')
       const room = manager.getRoom(info.roomId)
       if (!room) throw new Error('Room not found')
+      clearTurnTimer(info.roomId)
       applyAction(room, info.playerId, { type, amount })
       broadcastGameState(io, info.roomId)
+      setTurnTimer(io, info.roomId)
     } catch (err) {
       socket.emit('error', { message: (err as Error).message })
     }

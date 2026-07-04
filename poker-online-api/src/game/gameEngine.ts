@@ -234,3 +234,24 @@ function endHand(room: Room): void {
   room.playersToAct = new Set()
   room.status = 'waiting'
 }
+
+// Fold a player regardless of turn order (used for disconnect / timeout).
+export function forfeitPlayer(room: Room, playerId: string): void {
+  if (room.status !== 'playing' || room.bettingRound === 'showdown') return
+  const player = room.players.find((p) => p.id === playerId)
+  if (!player || player.hasFolded) return
+
+  player.hasFolded = true
+  room.playersToAct.delete(playerId)
+
+  if (room.currentTurnPlayerId === playerId) {
+    advanceHandState(room)
+  } else {
+    const remaining = activePlayers(room)
+    if (remaining.length === 1) {
+      finishHandBySingleWinner(room, remaining[0])
+    } else if (room.playersToAct.size === 0) {
+      room.bettingRound === 'river' ? finishHandAtShowdown(room) : advanceToNextStreet(room)
+    }
+  }
+}
