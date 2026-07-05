@@ -176,7 +176,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
   const maxRaise = me ? me.chips + me.currentBet : 0
 
   const isShowdown = state.bettingRound === 'showdown'
-  const canStart = state.status === 'waiting' && state.players.length >= 2
+  const canStart = state.bettingRound === 'showdown' && state.players.length >= 2
 
   function act(type: string, amount?: number) {
     socket.emit('player_action', { type, amount })

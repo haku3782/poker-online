@@ -32,7 +32,7 @@ export interface Room {
   dealerIndex: number
   currentTurnPlayerId: string | null
   currentBetLevel: number
-  playersToAct: Set<string>
+  playersToAct: string[]
   lastHandResult: HandResult | null
 }
 
@@ -53,13 +53,30 @@ export class RoomManager {
     turnTimeoutMs?: number
     defaultStartingChips?: number
   } = {}): Room {
+    const maxSeats = options.maxSeats ?? 6
+    const smallBlind = options.smallBlind ?? 10
+    const bigBlind = options.bigBlind ?? 20
+    const turnTimeoutMs = options.turnTimeoutMs ?? 30_000
+    const defaultStartingChips = options.defaultStartingChips ?? 1000
+
+    if (!Number.isInteger(maxSeats) || maxSeats < 2 || maxSeats > 10)
+      throw new Error('maxSeats must be an integer between 2 and 10')
+    if (!Number.isInteger(smallBlind) || smallBlind < 1)
+      throw new Error('smallBlind must be a positive integer')
+    if (!Number.isInteger(bigBlind) || bigBlind < smallBlind)
+      throw new Error('bigBlind must be an integer >= smallBlind')
+    if (turnTimeoutMs !== 0 && (!Number.isInteger(turnTimeoutMs) || turnTimeoutMs < 5000))
+      throw new Error('turnTimeoutMs must be 0 (disabled) or an integer >= 5000')
+    if (!Number.isInteger(defaultStartingChips) || defaultStartingChips < bigBlind * 2)
+      throw new Error('defaultStartingChips must be an integer >= bigBlind * 2')
+
     const room: Room = {
       id: crypto.randomUUID(),
-      maxSeats: options.maxSeats ?? 6,
-      smallBlind: options.smallBlind ?? 10,
-      bigBlind: options.bigBlind ?? 20,
-      turnTimeoutMs: options.turnTimeoutMs ?? 30_000,
-      defaultStartingChips: options.defaultStartingChips ?? 1000,
+      maxSeats,
+      smallBlind,
+      bigBlind,
+      turnTimeoutMs,
+      defaultStartingChips,
       players: [],
       status: 'waiting',
       deck: [],
@@ -70,7 +87,7 @@ export class RoomManager {
       dealerIndex: -1,
       currentTurnPlayerId: null,
       currentBetLevel: 0,
-      playersToAct: new Set(),
+      playersToAct: [],
       lastHandResult: null
     }
     this.rooms.set(room.id, room)
@@ -90,7 +107,7 @@ export class RoomManager {
     }))
   }
 
-  joinRoom(roomId: string, playerName: string): Player {
+  joinRoom(roomId: string, playerName: string, chips?: number): Player {
     const room = this.rooms.get(roomId)
     if (!room) throw new Error('Room not found')
     if (room.players.length >= room.maxSeats) throw new Error('Room is full')
@@ -99,7 +116,7 @@ export class RoomManager {
     let seat = 0
     while (takenSeats.has(seat)) seat++
 
-    const player = createPlayer(crypto.randomUUID(), playerName, seat, room.defaultStartingChips)
+    const player = createPlayer(crypto.randomUUID(), playerName, seat, chips ?? room.defaultStartingChips)
     player.isSpectating = room.status === 'playing'
     room.players.push(player)
     room.players.sort((a, b) => a.seat - b.seat)

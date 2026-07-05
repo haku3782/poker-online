@@ -14,7 +14,7 @@ export interface PlayerAction {
 const STREET_ORDER: BettingRound[] = ['preflop', 'flop', 'turn', 'river']
 
 function seatOrder(room: Room): Player[] {
-  return [...room.players].sort((a, b) => a.seat - b.seat)
+  return [...room.players]
 }
 
 function indexAfter(count: number, index: number): number {
@@ -29,13 +29,13 @@ function playersWhoCanAct(room: Room): Player[] {
   return room.players.filter((p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
 }
 
-function firstToActAfter(room: Room, afterIndex: number, predicate: (p: Player) => boolean): string {
+function firstToActAfter(room: Room, afterIndex: number, predicate: (p: Player) => boolean): string | null {
   const ordered = seatOrder(room)
   for (let offset = 1; offset <= ordered.length; offset++) {
     const candidate = ordered[(afterIndex + offset) % ordered.length]
     if (predicate(candidate)) return candidate.id
   }
-  throw new Error('No eligible player found')
+  return null
 }
 
 function postBlind(player: Player, amount: number): void {
@@ -54,11 +54,9 @@ function payIntoPot(player: Player, amount: number): void {
 }
 
 function reopenActionAfterRaise(room: Room, raiserId: string): void {
-  room.playersToAct = new Set(
-    room.players
-      .filter((p) => p.id !== raiserId && !p.hasFolded && !p.isAllIn && !p.isSpectating)
-      .map((p) => p.id)
-  )
+  room.playersToAct = room.players
+    .filter((p) => p.id !== raiserId && !p.hasFolded && !p.isAllIn && !p.isSpectating)
+    .map((p) => p.id)
 }
 
 export function startHand(room: Room): void {
@@ -100,8 +98,12 @@ export function startHand(room: Room): void {
     player.holeCards = [room.deck.pop()!, room.deck.pop()!]
   }
 
-  room.playersToAct = new Set(playersWhoCanAct(room).map((p) => p.id))
-  room.currentTurnPlayerId = firstToActAfter(room, bigBlindIndex, (p) => !p.hasFolded && !p.isAllIn)
+  room.playersToAct = playersWhoCanAct(room).map((p) => p.id)
+  room.currentTurnPlayerId = firstToActAfter(room, bigBlindIndex, (p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
+  if (room.currentTurnPlayerId === null) {
+    // All players are all-in from blinds — deal out remaining streets automatically
+    advanceHandState(room)
+  }
 }
 
 export function applyAction(room: Room, playerId: string, action: PlayerAction): void {
@@ -116,20 +118,20 @@ export function applyAction(room: Room, playerId: string, action: PlayerAction):
   switch (action.type) {
     case 'fold':
       player.hasFolded = true
-      room.playersToAct.delete(playerId)
+      room.playersToAct = room.playersToAct.filter((id) => id !== playerId)
       break
 
     case 'check':
       if (player.currentBet !== room.currentBetLevel) {
         throw new Error('Cannot check when facing a bet')
       }
-      room.playersToAct.delete(playerId)
+      room.playersToAct = room.playersToAct.filter((id) => id !== playerId)
       break
 
     case 'call': {
       const owed = Math.min(room.currentBetLevel - player.currentBet, player.chips)
       payIntoPot(player, owed)
-      room.playersToAct.delete(playerId)
+      room.playersToAct = room.playersToAct.filter((id) => id !== playerId)
       break
     }
 
@@ -150,10 +152,13 @@ export function applyAction(room: Room, playerId: string, action: PlayerAction):
         room.currentBetLevel = player.currentBet
         reopenActionAfterRaise(room, playerId)
       } else {
-        room.playersToAct.delete(playerId)
+        room.playersToAct = room.playersToAct.filter((id) => id !== playerId)
       }
       break
     }
+
+    default:
+      throw new Error(`Unknown action type: ${(action as PlayerAction).type}`)
   }
 
   advanceHandState(room)
@@ -166,7 +171,7 @@ function advanceHandState(room: Room): void {
     return
   }
 
-  if (room.playersToAct.size > 0) {
+  if (room.playersToAct.length > 0) {
     room.currentTurnPlayerId = nextPlayerToAct(room)
     return
   }
@@ -184,7 +189,7 @@ function nextPlayerToAct(room: Room): string {
   const currentIndex = ordered.findIndex((p) => p.id === room.currentTurnPlayerId)
   for (let offset = 1; offset <= ordered.length; offset++) {
     const candidate = ordered[(currentIndex + offset) % ordered.length]
-    if (room.playersToAct.has(candidate.id)) {
+    if (room.playersToAct.includes(candidate.id)) {
       return candidate.id
     }
   }
@@ -217,8 +222,11 @@ function advanceToNextStreet(room: Room): void {
     return
   }
 
-  room.playersToAct = new Set(actable.map((p) => p.id))
-  room.currentTurnPlayerId = firstToActAfter(room, room.dealerIndex, (p) => !p.hasFolded && !p.isAllIn)
+  room.playersToAct = actable.map((p) => p.id)
+  room.currentTurnPlayerId = firstToActAfter(room, room.dealerIndex, (p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
+  if (room.currentTurnPlayerId === null) {
+    finishHandAtShowdown(room)
+  }
 }
 
 function finishHandBySingleWinner(room: Room, winner: Player): void {
@@ -238,8 +246,7 @@ function finishHandAtShowdown(room: Room): void {
 function endHand(room: Room): void {
   room.bettingRound = 'showdown'
   room.currentTurnPlayerId = null
-  room.playersToAct = new Set()
-  room.status = 'waiting'
+  room.playersToAct = []
 }
 
 // Fold a player regardless of turn order (used for disconnect / timeout).
@@ -249,7 +256,7 @@ export function forfeitPlayer(room: Room, playerId: string): void {
   if (!player || player.hasFolded || player.isSpectating) return
 
   player.hasFolded = true
-  room.playersToAct.delete(playerId)
+  room.playersToAct = room.playersToAct.filter((id) => id !== playerId)
 
   if (room.currentTurnPlayerId === playerId) {
     advanceHandState(room)
@@ -257,7 +264,7 @@ export function forfeitPlayer(room: Room, playerId: string): void {
     const remaining = activePlayers(room)
     if (remaining.length === 1) {
       finishHandBySingleWinner(room, remaining[0])
-    } else if (room.playersToAct.size === 0) {
+    } else if (room.playersToAct.length === 0) {
       room.bettingRound === 'river' ? finishHandAtShowdown(room) : advanceToNextStreet(room)
     }
   }

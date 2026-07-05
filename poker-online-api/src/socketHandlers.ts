@@ -1,14 +1,19 @@
 import type { Server, Socket } from 'socket.io'
 import { applyAction, forfeitPlayer, startHand } from './game/gameEngine.js'
 import type { ActionType } from './game/gameEngine.js'
-import { RoomManager } from './game/room.js'
+import type { RoomManager } from './game/room.js'
+import { broadcastGameState, broadcastRoomsList } from './broadcast.js'
+import {
+  RECONNECT_TIMEOUT_MS,
+  cancelReconnectTimer,
+  deleteSession,
+  playerKey,
+  playerToToken,
+  reconnectTimers,
+  sessionTokens,
+  socketToPlayer,
+} from './session.js'
 
-const manager = new RoomManager()
-
-// socket.id → { roomId, playerId }
-const socketToPlayer = new Map<string, { roomId: string; playerId: string }>()
-
-// roomId → active turn timer
 const turnTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 function clearTurnTimer(roomId: string): void {
@@ -19,7 +24,7 @@ function clearTurnTimer(roomId: string): void {
   }
 }
 
-function setTurnTimer(io: Server, roomId: string): void {
+function setTurnTimer(io: Server, roomId: string, manager: RoomManager): void {
   clearTurnTimer(roomId)
   const room = manager.getRoom(roomId)
   if (!room || room.status !== 'playing' || room.bettingRound === 'showdown' || !room.currentTurnPlayerId) return
@@ -32,8 +37,8 @@ function setTurnTimer(io: Server, roomId: string): void {
     if (!r || r.currentTurnPlayerId !== playerId) return
     try {
       applyAction(r, playerId, { type: 'fold' })
-      broadcastGameState(io, roomId)
-      setTurnTimer(io, roomId)
+      broadcastGameState(io, roomId, manager)
+      setTurnTimer(io, roomId, manager)
     } catch {
       // hand may have ended between timer set and fire
     }
@@ -41,87 +46,40 @@ function setTurnTimer(io: Server, roomId: string): void {
   turnTimers.set(roomId, t)
 }
 
-function broadcastRoomsList(io: Server): void {
-  io.emit('rooms_list', manager.listRooms())
-}
-
-function broadcastGameState(io: Server, roomId: string): void {
-  const room = manager.getRoom(roomId)
-  if (!room) return
-
-  const basePlayers = room.players.map((p) => ({
-    id: p.id,
-    name: p.name,
-    seat: p.seat,
-    chips: p.chips,
-    currentBet: p.currentBet,
-    hasFolded: p.hasFolded,
-    isAllIn: p.isAllIn,
-    isSpectating: p.isSpectating,
-  }))
-
-  const pot = room.players.reduce((sum, p) => sum + p.totalContributed, 0)
-
-  const baseState = {
-    roomId: room.id,
-    status: room.status,
-    bettingRound: room.bettingRound,
-    communityCards: room.communityCards,
-    currentBetLevel: room.currentBetLevel,
-    pot,
-    currentTurnPlayerId: room.currentTurnPlayerId,
-    lastHandResult: room.lastHandResult,
-    players: basePlayers,
-    maxSeats: room.maxSeats,
-    smallBlind: room.smallBlind,
-    bigBlind: room.bigBlind,
-    turnTimeoutMs: room.turnTimeoutMs,
-    defaultStartingChips: room.defaultStartingChips,
-  }
-
-  // Send personalized state to each socket in this room (hole cards only to owner)
-  for (const [sid, info] of socketToPlayer.entries()) {
-    if (info.roomId !== roomId) continue
-    const ownPlayer = room.players.find((p) => p.id === info.playerId)
-    const personalizedState = {
-      ...baseState,
-      players: basePlayers.map((p) => {
-        if (p.id === info.playerId && ownPlayer) {
-          return { ...p, holeCards: ownPlayer.holeCards }
-        }
-        return p
-      }),
-    }
-    io.to(sid).emit('game_state', personalizedState)
-  }
-}
-
-function handleLeave(io: Server, socket: Socket): void {
-  const info = socketToPlayer.get(socket.id)
-  if (!info) return
-  socketToPlayer.delete(socket.id)
-  socket.leave(info.roomId)
-
+// Core leave logic — forfeits, removes from room, broadcasts. Does not touch sessions or sockets.
+function doLeave(io: Server, info: { roomId: string; playerId: string }, manager: RoomManager): void {
   const room = manager.getRoom(info.roomId)
   if (room && room.status === 'playing' && room.bettingRound !== 'showdown') {
-    // Auto-fold before removing — keeps hand consistent
     clearTurnTimer(info.roomId)
     forfeitPlayer(room, info.playerId)
   }
-
   manager.leaveRoom(info.roomId, info.playerId)
-  socket.emit('room_left', { roomId: info.roomId })
 
   if (manager.getRoom(info.roomId)) {
-    broadcastGameState(io, info.roomId)
-    setTurnTimer(io, info.roomId)
+    broadcastGameState(io, info.roomId, manager)
+    setTurnTimer(io, info.roomId, manager)
   } else {
     clearTurnTimer(info.roomId)
   }
-  broadcastRoomsList(io)
+  broadcastRoomsList(io, manager)
 }
 
-export function registerHandlers(io: Server, socket: Socket): void {
+// Full explicit leave (leave_room button). Clears session and emits room_left.
+function handleLeave(io: Server, socket: Socket, manager: RoomManager): void {
+  const info = socketToPlayer.get(socket.id)
+  if (!info) return
+
+  socketToPlayer.delete(socket.id)
+  socket.leave(info.roomId)
+
+  const token = playerToToken.get(playerKey(info.roomId, info.playerId))
+  if (token) deleteSession(token, info.roomId, info.playerId)
+
+  socket.emit('room_left', { roomId: info.roomId })
+  doLeave(io, info, manager)
+}
+
+export function registerHandlers(io: Server, socket: Socket, manager: RoomManager): void {
   socket.on('list_rooms', () => {
     socket.emit('rooms_list', manager.listRooms())
   })
@@ -146,7 +104,7 @@ export function registerHandlers(io: Server, socket: Socket): void {
           defaultStartingChips: room.defaultStartingChips,
           status: room.status,
         })
-        broadcastRoomsList(io)
+        broadcastRoomsList(io, manager)
       } catch (err) {
         socket.emit('error', { message: (err as Error).message })
       }
@@ -158,25 +116,53 @@ export function registerHandlers(io: Server, socket: Socket): void {
     ({ roomId, playerName }: { roomId: string; playerName: string }) => {
       try {
         const player = manager.joinRoom(roomId, playerName)
+
+        const token = crypto.randomUUID()
+        sessionTokens.set(token, { roomId, playerId: player.id })
+        playerToToken.set(playerKey(roomId, player.id), token)
+
         socketToPlayer.set(socket.id, { roomId, playerId: player.id })
         socket.join(roomId)
-        socket.emit('room_joined', { roomId, playerId: player.id, seat: player.seat })
-        broadcastGameState(io, roomId)
-        broadcastRoomsList(io)
+        socket.emit('room_joined', { roomId, playerId: player.id, seat: player.seat, sessionToken: token })
+        broadcastGameState(io, roomId, manager)
+        broadcastRoomsList(io, manager)
       } catch (err) {
         socket.emit('error', { message: (err as Error).message })
       }
     }
   )
 
+  socket.on('reconnect_session', ({ token }: { token: string }) => {
+    const session = sessionTokens.get(token)
+    if (!session) {
+      socket.emit('reconnect_failed', { reason: 'Session expired' })
+      return
+    }
+
+    const room = manager.getRoom(session.roomId)
+    const player = room?.players.find((p) => p.id === session.playerId)
+    if (!room || !player) {
+      deleteSession(token, session.roomId, session.playerId)
+      socket.emit('reconnect_failed', { reason: 'Room or player no longer exists' })
+      return
+    }
+
+    cancelReconnectTimer(token)
+    socketToPlayer.set(socket.id, { roomId: session.roomId, playerId: session.playerId })
+    socket.join(session.roomId)
+
+    socket.emit('room_rejoined', { roomId: session.roomId, playerId: session.playerId })
+    broadcastGameState(io, session.roomId, manager)
+  })
+
   socket.on('request_game_state', () => {
     const info = socketToPlayer.get(socket.id)
     if (!info) return
-    broadcastGameState(io, info.roomId)
+    broadcastGameState(io, info.roomId, manager)
   })
 
   socket.on('leave_room', () => {
-    handleLeave(io, socket)
+    handleLeave(io, socket, manager)
   })
 
   socket.on('start_game', () => {
@@ -185,10 +171,13 @@ export function registerHandlers(io: Server, socket: Socket): void {
       if (!info) throw new Error('Not in a room')
       const room = manager.getRoom(info.roomId)
       if (!room) throw new Error('Room not found')
+      if (room.status === 'playing' && room.bettingRound !== 'showdown') {
+        throw new Error('Game already in progress')
+      }
       startHand(room)
-      broadcastGameState(io, info.roomId)
-      setTurnTimer(io, info.roomId)
-      broadcastRoomsList(io)
+      broadcastGameState(io, info.roomId, manager)
+      setTurnTimer(io, info.roomId, manager)
+      broadcastRoomsList(io, manager)
     } catch (err) {
       socket.emit('error', { message: (err as Error).message })
     }
@@ -202,14 +191,35 @@ export function registerHandlers(io: Server, socket: Socket): void {
       if (!room) throw new Error('Room not found')
       clearTurnTimer(info.roomId)
       applyAction(room, info.playerId, { type, amount })
-      broadcastGameState(io, info.roomId)
-      setTurnTimer(io, info.roomId)
+      broadcastGameState(io, info.roomId, manager)
+      setTurnTimer(io, info.roomId, manager)
     } catch (err) {
       socket.emit('error', { message: (err as Error).message })
     }
   })
 
   socket.on('disconnect', () => {
-    handleLeave(io, socket)
+    const info = socketToPlayer.get(socket.id)
+    if (!info) return
+
+    socketToPlayer.delete(socket.id)
+    socket.leave(info.roomId)
+
+    const key = playerKey(info.roomId, info.playerId)
+    const token = playerToToken.get(key)
+
+    if (!token) {
+      doLeave(io, info, manager)
+      return
+    }
+
+    // Grace period — defer forfeit to allow reconnection
+    const t = setTimeout(() => {
+      reconnectTimers.delete(token)
+      sessionTokens.delete(token)
+      playerToToken.delete(key)
+      doLeave(io, info, manager)
+    }, RECONNECT_TIMEOUT_MS)
+    reconnectTimers.set(token, t)
   })
 }

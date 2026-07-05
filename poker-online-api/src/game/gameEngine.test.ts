@@ -95,7 +95,7 @@ describe('applyAction', () => {
     applyAction(room, alice.id, { type: 'fold' })
 
     expect(room.bettingRound).toBe('showdown')
-    expect(room.status).toBe('waiting')
+    expect(room.status).toBe('playing')
     expect(room.lastHandResult).toEqual({ pots: [{ amount: 30, winnerIds: [bob.id] }] })
     expect(bob.chips).toBe(510) // 500 - 20 (BB posted) + 30 (pot)
     expect(alice.chips).toBe(490) // 500 - 10 (SB posted, forfeited)
@@ -114,7 +114,7 @@ describe('applyAction', () => {
     // Carol raises after both Alice and Bob already called this round.
     applyAction(room, carol.id, { type: 'raise', amount: 100 })
 
-    expect(room.playersToAct).toEqual(new Set([alice.id, bob.id]))
+    expect(room.playersToAct).toEqual([alice.id, bob.id])
     expect(room.currentTurnPlayerId).toBe(alice.id)
   })
 
@@ -130,7 +130,7 @@ describe('applyAction', () => {
     expect(room.bettingRound).toBe('showdown')
     expect(room.communityCards).toHaveLength(5)
     expect(room.lastHandResult).not.toBeNull()
-    expect(room.status).toBe('waiting')
+    expect(room.status).toBe('playing')
   })
 
   it('conserves total chips across a full hand', () => {
@@ -164,7 +164,7 @@ describe('applyAction', () => {
 
     expect(room.bettingRound).toBe('flop')
     // Alice can no longer act, but Bob and Carol can keep building a side pot.
-    expect(room.playersToAct).toEqual(new Set([bob.id, carol.id]))
+    expect(room.playersToAct).toEqual([bob.id, carol.id])
 
     applyAction(room, bob.id, { type: 'raise', amount: 30 })
     applyAction(room, carol.id, { type: 'call' })

@@ -3,7 +3,7 @@ import { socket } from '../socket'
 import type { RoomSummary } from '../types'
 
 interface Props {
-  onJoined: (playerId: string) => void
+  onJoined: (playerId: string, sessionToken: string) => void
 }
 
 export function LobbyView({ onJoined }: Props) {
@@ -28,8 +28,8 @@ export function LobbyView({ onJoined }: Props) {
     const onRoomCreated = (data: { roomId: string }) => {
       socket.emit('join_room', { roomId: data.roomId, playerName: nameRef.current.trim() })
     }
-    const onRoomJoined = (data: { playerId: string }) => {
-      onJoined(data.playerId)
+    const onRoomJoined = (data: { playerId: string; sessionToken: string }) => {
+      onJoined(data.playerId, data.sessionToken)
     }
 
     socket.on('connect', onConnect)
