@@ -201,6 +201,12 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           </button>
         )}
 
+        {me && me.chips === 0 && (
+          <button className="btn-rebuy" onClick={() => socket.emit('rebuy')}>
+            ↩ Rebuy ({state.defaultStartingChips} chips)
+          </button>
+        )}
+
         {canAct && (
           <div className="action-buttons">
             <button className="btn-fold" onClick={() => act('fold')}>

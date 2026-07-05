@@ -346,7 +346,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   background: rgba(0,0,0,0.25);
   transition: border-color 0.2s;
   width: 8rem;
-  height: 8rem;
+  height: 9rem;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -372,9 +372,10 @@ button:not(:disabled):hover { opacity: 0.82; }
   width: 100%;
   min-height: 1.1rem;
 }
-.seat-name  { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 4.5rem; }
-.seat-chips { color: #60d080; white-space: nowrap; }
-.seat-bet   { color: var(--gold); white-space: nowrap; }
+.seat-name   { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 4.5rem; }
+.seat-chips  { color: #60d080; white-space: nowrap; }
+.seat-bet    { color: var(--gold); white-space: nowrap; }
+.seat-rebuy  { font-size: 0.65rem; color: #778; white-space: nowrap; }
 
 .badge {
   font-size: 0.65rem;
@@ -486,7 +487,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   background: var(--felt);
   border-radius: 12px;
   width: 100%;
-  height: 9rem;
+  height: 10rem;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -552,3 +553,4 @@ button:not(:disabled):hover { opacity: 0.82; }
 
 .btn-confirm-raise { background: #3a7a2a; color: #cfc; }
 .btn-cancel        { background: #333; color: #aaa; }
+.btn-rebuy         { background: #1a3a6a; color: #adf; width: 100%; }

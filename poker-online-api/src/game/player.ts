@@ -11,6 +11,7 @@ export interface Player {
   hasFolded: boolean
   isAllIn: boolean
   isSpectating: boolean
+  rebuyCount: number
 }
 
 export function createPlayer(id: string, name: string, seat: number, chips: number): Player {
@@ -25,5 +26,6 @@ export function createPlayer(id: string, name: string, seat: number, chips: numb
     hasFolded: false,
     isAllIn: false,
     isSpectating: false,
+    rebuyCount: 0,
   }
 }

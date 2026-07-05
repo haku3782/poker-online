@@ -18,6 +18,7 @@ export interface PlayerView {
   hasFolded: boolean
   isAllIn: boolean
   isSpectating: boolean
+  rebuyCount: number
   holeCards?: Card[]
 }
 

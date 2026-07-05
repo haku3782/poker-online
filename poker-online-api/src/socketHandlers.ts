@@ -161,6 +161,23 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
     broadcastGameState(io, info.roomId, manager)
   })
 
+  socket.on('rebuy', () => {
+    try {
+      const info = socketToPlayer.get(socket.id)
+      if (!info) throw new Error('Not in a room')
+      const room = manager.getRoom(info.roomId)
+      if (!room) throw new Error('Room not found')
+      const player = room.players.find((p) => p.id === info.playerId)
+      if (!player) throw new Error('Player not found')
+      if (player.chips > 0) throw new Error('Cannot rebuy with chips remaining')
+      player.chips = room.defaultStartingChips
+      player.rebuyCount++
+      broadcastGameState(io, info.roomId, manager)
+    } catch (err) {
+      socket.emit('error', { message: (err as Error).message })
+    }
+  })
+
   socket.on('leave_room', () => {
     handleLeave(io, socket, manager)
   })

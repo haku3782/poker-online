@@ -55,6 +55,11 @@ export function PlayerSeat({ player, isActive, isMe }: Props) {
             {badge?.text ?? 'FOLD'}
           </span>
         </div>
+        <div className="seat-row">
+          <span className="seat-rebuy" style={{ visibility: player.rebuyCount > 0 ? 'visible' : 'hidden' }}>
+            ↩ ×{player.rebuyCount}
+          </span>
+        </div>
       </div>
     </div>
   )

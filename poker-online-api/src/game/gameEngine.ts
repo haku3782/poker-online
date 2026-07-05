@@ -38,6 +38,14 @@ function firstToActAfter(room: Room, afterIndex: number, predicate: (p: Player) 
   return null
 }
 
+function nextActiveIndex(ordered: Player[], fromIndex: number): number {
+  for (let i = 1; i <= ordered.length; i++) {
+    const idx = (fromIndex + i) % ordered.length
+    if (!ordered[idx].isSpectating) return idx
+  }
+  throw new Error('No active player found')
+}
+
 function postBlind(player: Player, amount: number): void {
   const paid = Math.min(amount, player.chips)
   player.chips -= paid
@@ -60,17 +68,20 @@ function reopenActionAfterRaise(room: Room, raiserId: string): void {
 }
 
 export function startHand(room: Room): void {
-  // Promote all spectators to active players for this hand
+  // Bust out 0-chip players; promote remaining spectators to active
   for (const player of room.players) {
-    player.isSpectating = false
+    player.isSpectating = player.chips === 0
   }
 
-  const players = seatOrder(room)
-  if (players.length < 2) {
+  const allOrdered = seatOrder(room)
+  const active = allOrdered.filter(p => !p.isSpectating)
+
+  if (active.length < 2) {
     throw new Error('At least 2 players are required to start a hand')
   }
 
-  for (const player of players) {
+  // Reset all players (spectators get holeCards cleared; active get cards dealt below)
+  for (const player of allOrdered) {
     player.holeCards = []
     player.currentBet = 0
     player.totalContributed = 0
@@ -82,24 +93,27 @@ export function startHand(room: Room): void {
   room.deck = shuffle(createDeck())
   room.bettingRound = 'preflop'
   room.lastHandResult = null
-  room.dealerIndex = indexAfter(players.length, room.dealerIndex)
   room.status = 'playing'
 
-  // Heads-up is the one case where the dealer posts the small blind.
-  const isHeadsUp = players.length === 2
-  const smallBlindIndex = isHeadsUp ? room.dealerIndex : indexAfter(players.length, room.dealerIndex)
-  const bigBlindIndex = indexAfter(players.length, smallBlindIndex)
+  // Advance dealer to next active player (skips spectators)
+  room.dealerIndex = nextActiveIndex(allOrdered, room.dealerIndex)
 
-  postBlind(players[smallBlindIndex], room.smallBlind)
-  postBlind(players[bigBlindIndex], room.bigBlind)
+  // Heads-up is the one case where the dealer posts the small blind.
+  const isHeadsUp = active.length === 2
+  const sbIdx = isHeadsUp ? room.dealerIndex : nextActiveIndex(allOrdered, room.dealerIndex)
+  const bbIdx = nextActiveIndex(allOrdered, sbIdx)
+
+  postBlind(allOrdered[sbIdx], room.smallBlind)
+  postBlind(allOrdered[bbIdx], room.bigBlind)
   room.currentBetLevel = room.bigBlind
 
-  for (const player of players) {
+  // Deal cards only to active players
+  for (const player of active) {
     player.holeCards = [room.deck.pop()!, room.deck.pop()!]
   }
 
   room.playersToAct = playersWhoCanAct(room).map((p) => p.id)
-  room.currentTurnPlayerId = firstToActAfter(room, bigBlindIndex, (p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
+  room.currentTurnPlayerId = firstToActAfter(room, bbIdx, (p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
   if (room.currentTurnPlayerId === null) {
     // All players are all-in from blinds — deal out remaining streets automatically
     advanceHandState(room)
