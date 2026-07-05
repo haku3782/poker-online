@@ -67,10 +67,10 @@ function reopenActionAfterRaise(room: Room, raiserId: string): void {
     .map((p) => p.id)
 }
 
-export function startHand(room: Room): void {
-  // Bust out 0-chip players; promote remaining spectators to active
+export function startHand(room: Room, forceSpectating?: Set<string>): void {
+  // Bust out 0-chip players; apply forceSpectating for first-game ready check
   for (const player of room.players) {
-    player.isSpectating = player.chips === 0
+    player.isSpectating = player.chips === 0 || (forceSpectating?.has(player.id) ?? false)
   }
 
   const allOrdered = seatOrder(room)

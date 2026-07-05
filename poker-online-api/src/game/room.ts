@@ -23,6 +23,7 @@ export interface Room {
   defaultStartingChips: number
   players: Player[]
   status: RoomStatus
+  ownerId: string
 
   deck: Card[]
   communityCards: Card[]
@@ -79,6 +80,7 @@ export class RoomManager {
       defaultStartingChips,
       players: [],
       status: 'waiting',
+      ownerId: '',
       deck: [],
       communityCards: [],
       bettingRound: 'preflop',

@@ -5,11 +5,13 @@ interface Props {
   player: PlayerView
   isActive: boolean
   isMe: boolean
+  compact?: boolean
 }
 
-export function PlayerSeat({ player, isActive, isMe }: Props) {
+export function PlayerSeat({ player, isActive, isMe, compact }: Props) {
   const classes = [
     'player-seat',
+    compact && 'compact',
     isActive && 'active',
     player.hasFolded && 'folded',
     player.isSpectating && 'spectating',
@@ -23,6 +25,36 @@ export function PlayerSeat({ player, isActive, isMe }: Props) {
     : player.hasFolded
     ? { text: 'FOLD', cls: 'folded-badge' }
     : null
+
+  if (compact) {
+    const revealedCards = player.holeCards && player.holeCards.length > 0
+    return (
+      <div className={`${classes}${revealedCards ? ' revealed' : ''}`}>
+        {revealedCards && (
+          <div className="seat-cards">
+            {player.holeCards!.map((c, i) => <CardFace key={i} card={c} />)}
+          </div>
+        )}
+        <div className="seat-info">
+          <div className="seat-row">
+            <span className="seat-name">{player.name}</span>
+            <span className="seat-chips">{player.chips}</span>
+          </div>
+          <div className="seat-row">
+            <span className="seat-bet" style={{ visibility: player.currentBet > 0 ? 'visible' : 'hidden' }}>
+              Bet: {player.currentBet}
+            </span>
+            <span
+              className={`badge ${badge?.cls ?? 'folded-badge'}`}
+              style={{ visibility: badge ? 'visible' : 'hidden' }}
+            >
+              {badge?.text ?? 'FOLD'}
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={classes}>

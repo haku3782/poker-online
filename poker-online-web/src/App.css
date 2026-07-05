@@ -278,6 +278,9 @@ button:not(:disabled):hover { opacity: 0.82; }
   max-width: 260px;
 }
 .waiting-player-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.4rem 0.75rem;
   background: rgba(255,255,255,0.06);
   border-radius: 6px;
@@ -287,6 +290,40 @@ button:not(:disabled):hover { opacity: 0.82; }
 .waiting-player-list li.me {
   background: rgba(240,192,64,0.1);
   color: var(--gold);
+}
+.waiting-player-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.owner-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  background: #5a3a0a;
+  color: var(--gold);
+  font-weight: 700;
+}
+.ready-indicator {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #556;
+}
+.ready-indicator.ready { color: #60d080; }
+
+.btn-ready {
+  background: #2a8a50;
+  color: #fff;
+  border: none;
+  width: 100%;
+  max-width: 260px;
+  line-height: 1;
+  height: 2.5rem;
+}
+.btn-ready.active {
+  background: #7a5a00;
+  color: #f0c040;
+  border: none;
 }
 .waiting-hint {
   font-size: 0.82rem;
@@ -317,22 +354,134 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 .btn-leave:hover { border-color: #f55; color: #f55; }
 
-/* Opponents */
-.opponents {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
-  padding: 0.75rem;
-  background: var(--felt);
-  border-radius: 12px;
+/* ===== FELT AREA (oval table) ===== */
+.felt-area {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: var(--felt);
+  border-radius: 16px;
+  padding: 0.5rem;
+  overflow: hidden;
 }
 
-.waiting-msg { color: rgba(255,255,255,0.35); font-style: italic; font-size: 0.9rem; }
+/* Top opponents row */
+.felt-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.felt-top .player-seat.compact {
+  flex: 1;
+  min-width: 5rem;
+  max-width: 8rem;
+  width: auto;
+}
+
+/* Center row */
+.felt-center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Side seat pockets — always visible, wider on large screens */
+.felt-side {
+  width: 3.5rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.felt-side .player-seat.compact {
+  width: 100%;
+  height: auto;
+  min-height: 3rem;
+}
+
+.felt-top .player-seat.compact .seat-cards {
+  --card-w: 1.4rem;
+  --card-h: 2.0rem;
+}
+.felt-side .player-seat.compact .seat-cards {
+  --card-w: 1.3rem;
+  --card-h: 2.0rem;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* カードごとに回転（コンテナは縦並びのまま） */
+.felt-side-left .player-seat.compact .seat-cards .card {
+  transform: rotate(90deg);
+}
+.felt-side-right .player-seat.compact .seat-cards .card {
+  transform: rotate(-90deg);
+}
+
+/* Side seats: vertical stacking to fit in narrow column */
+.felt-side .seat-info { gap: 0.08rem; }
+.felt-side .seat-row { flex-direction: column; gap: 0.04rem; min-height: 0; }
+.felt-side .seat-name { font-size: 0.65rem; max-width: 2.8rem; }
+.felt-side .seat-chips { font-size: 0.65rem; }
+.felt-side .seat-bet { display: none; }
+
+@media (min-width: 430px) {
+  .felt-side { width: 5.5rem; }
+  /* Wide screens: restore horizontal layout for side seats */
+  .felt-side .seat-row { flex-direction: row; gap: 0.4rem; min-height: 1.1rem; }
+  .felt-side .seat-name { font-size: 0.72rem; max-width: 3.5rem; }
+  .felt-side .seat-chips { font-size: 0.72rem; }
+  .felt-side .seat-bet { display: inline; }
+}
+
+/* Community cards in center */
+.felt-community {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  --card-w: 1.4rem;
+  --card-h: 2.0rem;
+}
+
+@media (min-width: 430px) {
+  .felt-community { --card-w: 1.8rem; --card-h: 2.6rem; }
+}
+
+@media (min-width: 580px) {
+  .felt-community { --card-w: 2.2rem; --card-h: 3.1rem; }
+}
+
+.community-info {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.community-pot { color: var(--gold); font-weight: 700; }
+
+/* Status row (turn indicator / hand result) */
+.felt-status {
+  flex-shrink: 0;
+  min-height: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
 
 /* Player seat */
 .player-seat {
@@ -353,6 +502,19 @@ button:not(:disabled):hover { opacity: 0.82; }
 .player-seat.active { border-color: var(--gold); }
 .player-seat.folded { opacity: 0.4; }
 .player-seat.me     { background: rgba(0,0,0,0.35); }
+
+.player-seat.compact {
+  height: 3rem;
+  width: 100%;
+  padding: 0.25rem 0.45rem;
+  gap: 0.1rem;
+  flex-shrink: 0;
+}
+.player-seat.compact.revealed {
+  height: auto;
+}
+.player-seat.compact .seat-info { font-size: 0.72rem; gap: 0.1rem; }
+.player-seat.compact .seat-name { max-width: 3.5rem; }
 
 .seat-cards { display: flex; gap: 0.2rem; }
 
@@ -436,43 +598,22 @@ button:not(:disabled):hover { opacity: 0.82; }
   border: 2px dashed rgba(255,255,255,0.12);
 }
 
-/* Community */
-.community-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.9rem 1rem;
-  background: var(--felt);
-  border-radius: 12px;
-  width: 100%;
-  flex-shrink: 0;
-}
+/* Community (inside felt-community) */
 .community-label { font-size: 0.7rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.45); }
-.community-cards { display: flex; gap: 0.35rem; }
+.community-cards { display: flex; gap: 0.25rem; }
 .community-bet   { font-size: 0.8rem; color: rgba(255,255,255,0.55); }
 
 /* Hand result */
 .hand-result {
-  padding: 0.7rem 1rem;
+  padding: 0.5rem 0.8rem;
   background: rgba(240,192,64,0.12);
   border: 1px solid var(--gold);
   border-radius: 8px;
   color: var(--gold);
   font-weight: 600;
   text-align: center;
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-/* Status area — fixed height to prevent layout shifts */
-.status-area {
-  height: 5.5rem;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  justify-content: center;
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 
 /* Turn indicator */
@@ -554,3 +695,14 @@ button:not(:disabled):hover { opacity: 0.82; }
 .btn-confirm-raise { background: #3a7a2a; color: #cfc; }
 .btn-cancel        { background: #333; color: #aaa; }
 .btn-rebuy         { background: #1a3a6a; color: #adf; width: 100%; }
+
+/* ===== SMALL SCREENS (iPhone SE など max-height 620px) ===== */
+@media (max-height: 620px) {
+  .table { padding: 0.4rem; gap: 0.4rem; }
+  .felt-area { gap: 0.2rem; padding: 0.4rem; }
+  .felt-status { min-height: 1.8rem; }
+  .felt-community { --card-w: 1.3rem; --card-h: 1.9rem; gap: 0.2rem; }
+  .my-area { height: 7.5rem; }
+  .player-seat:not(.compact) { height: 6.5rem; }
+  .actions { height: 5.5rem; }
+}

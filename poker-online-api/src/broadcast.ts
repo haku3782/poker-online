@@ -20,6 +20,7 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
     isAllIn: p.isAllIn,
     isSpectating: p.isSpectating,
     rebuyCount: p.rebuyCount,
+    isReady: p.isReady,
   }))
 
   const pot = room.players.reduce((sum, p) => sum + p.totalContributed, 0)
@@ -39,6 +40,7 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
     bigBlind: room.bigBlind,
     turnTimeoutMs: room.turnTimeoutMs,
     defaultStartingChips: room.defaultStartingChips,
+    ownerId: room.ownerId,
   }
 
   // Send personalized state to each socket in this room (hole cards only to owner)
@@ -50,6 +52,12 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
       players: basePlayers.map((p) => {
         if (p.id === info.playerId && ownPlayer) {
           return { ...p, holeCards: ownPlayer.holeCards }
+        }
+        if (room.bettingRound === 'showdown') {
+          const rp = room.players.find((x) => x.id === p.id)
+          if (rp && !rp.hasFolded && !rp.isSpectating && rp.holeCards.length > 0) {
+            return { ...p, holeCards: rp.holeCards }
+          }
         }
         return p
       }),

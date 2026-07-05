@@ -12,6 +12,7 @@ export interface Player {
   isAllIn: boolean
   isSpectating: boolean
   rebuyCount: number
+  isReady: boolean
 }
 
 export function createPlayer(id: string, name: string, seat: number, chips: number): Player {
@@ -27,5 +28,6 @@ export function createPlayer(id: string, name: string, seat: number, chips: numb
     isAllIn: false,
     isSpectating: false,
     rebuyCount: 0,
+    isReady: false,
   }
 }

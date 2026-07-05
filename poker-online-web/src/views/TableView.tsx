@@ -67,11 +67,32 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           <ul className="waiting-player-list">
             {state.players.map((p) => (
               <li key={p.id} className={p.id === myPlayerId ? 'me' : ''}>
-                {p.name}{p.id === myPlayerId ? ' (You)' : ''}
+                <span className="waiting-player-name">
+                  {p.name}{p.id === myPlayerId ? ' (You)' : ''}
+                  {p.id === state.ownerId && <span className="owner-badge">HOST</span>}
+                </span>
+                {p.id !== state.ownerId && (
+                  <span className={`ready-indicator ${p.isReady ? 'ready' : ''}`}>
+                    {p.isReady ? 'OK' : '…'}
+                  </span>
+                )}
               </li>
             ))}
           </ul>
-          {state.players.length >= 2 && (
+
+          {myPlayerId !== state.ownerId && (() => {
+            const me = state.players.find((p) => p.id === myPlayerId)
+            return me ? (
+              <button
+                className={`btn-ready ${me.isReady ? 'active' : ''}`}
+                onClick={() => socket.emit('set_ready')}
+              >
+                {me.isReady ? 'Ready ✓' : 'Ready?'}
+              </button>
+            ) : null
+          })()}
+
+          {myPlayerId === state.ownerId && state.players.length >= 2 && (
             <button className="btn-start" onClick={() => socket.emit('start_game')}>
               ▶ Start Game
             </button>
@@ -113,73 +134,103 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     setShowRaise(true)
   }
 
+  const topOpponents = others.slice(0, 3)
+  const sideLeft = others[3] ?? null
+  const sideRight = others[4] ?? null
+
   return (
     <div className="table">
       {/* Header */}
       <div className="table-header">
         <span className="header-room">Room {state.roomId.slice(0, 8)}…</span>
-        <span className="header-pot">Pot: {state.pot}</span>
         <button className="btn-leave" onClick={() => socket.emit('leave_room')}>
           Leave
         </button>
       </div>
 
-      {/* Opponents */}
-      <div className="opponents">
-        {others.length === 0 ? (
-          <p className="waiting-msg">Waiting for players…</p>
-        ) : (
-          others.map((p) => (
+      {/* Felt area: oval table */}
+      <div className="felt-area">
+        {/* Top opponents (always up to 3) */}
+        <div className="felt-top">
+          {topOpponents.map((p) => (
             <PlayerSeat
               key={p.id}
               player={p}
               isActive={state.currentTurnPlayerId === p.id}
               isMe={false}
+              compact={true}
             />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
 
-      {/* Community cards */}
-      <div className="community-area">
-        <div className="community-label">{state.bettingRound.toUpperCase()}</div>
-        <div className="community-cards">
-          {[0, 1, 2, 3, 4].map((i) =>
-            state.communityCards[i] ? (
-              <CardFace key={i} card={state.communityCards[i]} />
-            ) : (
-              <CardSlot key={i} />
-            ),
+        {/* Center: side seats + community cards */}
+        <div className="felt-center">
+          <div className="felt-side felt-side-left">
+            {sideLeft && (
+              <PlayerSeat
+                player={sideLeft}
+                isActive={state.currentTurnPlayerId === sideLeft.id}
+                isMe={false}
+                compact={true}
+              />
+            )}
+          </div>
+
+          <div className="felt-community">
+            <span className="community-label">{state.bettingRound.toUpperCase()}</span>
+            <div className="community-cards">
+              {[0, 1, 2, 3, 4].map((i) =>
+                state.communityCards[i] ? (
+                  <CardFace key={i} card={state.communityCards[i]} />
+                ) : (
+                  <CardSlot key={i} />
+                ),
+              )}
+            </div>
+            <div className="community-info">
+              <span className="community-pot">Pot: {state.pot}</span>
+              <span className="community-bet" style={{ visibility: state.currentBetLevel > 0 ? 'visible' : 'hidden' }}>
+                Bet: {state.currentBetLevel}
+              </span>
+            </div>
+          </div>
+
+          <div className="felt-side felt-side-right">
+            {sideRight && (
+              <PlayerSeat
+                player={sideRight}
+                isActive={state.currentTurnPlayerId === sideRight.id}
+                isMe={false}
+                compact={true}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Status: turn / result */}
+        <div className="felt-status">
+          {isShowdown && state.lastHandResult && (
+            <div className="hand-result">
+              {state.lastHandResult.pots.map((pot, i) => {
+                const names = pot.winnerIds
+                  .map((id) => state.players.find((p) => p.id === id)?.name ?? id)
+                  .join(', ')
+                return <div key={i}>🏆 {names} wins {pot.amount} chips</div>
+              })}
+            </div>
           )}
+          {me?.isSpectating && (
+            <div className="spectating-banner">
+              Spectating — you will join at the start of the next hand
+            </div>
+          )}
+          {state.status === 'playing' && !isShowdown && !me?.isSpectating && (
+            <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
+              {isMyTurn ? '🎯 Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
+            </div>
+          )}
+          {errorMsg && <div className="error-msg">{errorMsg}</div>}
         </div>
-        <div className="community-bet" style={{ visibility: state.currentBetLevel > 0 ? 'visible' : 'hidden' }}>
-          Current bet: {state.currentBetLevel}
-        </div>
-      </div>
-
-      {/* Status area — fixed height prevents layout shifts */}
-      <div className="status-area">
-        {isShowdown && state.lastHandResult && (
-          <div className="hand-result">
-            {state.lastHandResult.pots.map((pot, i) => {
-              const names = pot.winnerIds
-                .map((id) => state.players.find((p) => p.id === id)?.name ?? id)
-                .join(', ')
-              return <div key={i}>🏆 {names} wins {pot.amount} chips</div>
-            })}
-          </div>
-        )}
-        {me?.isSpectating && (
-          <div className="spectating-banner">
-            Spectating — you will join at the start of the next hand
-          </div>
-        )}
-        {state.status === 'playing' && !isShowdown && !me?.isSpectating && (
-          <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
-            {isMyTurn ? '🎯 Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
-          </div>
-        )}
-        {errorMsg && <div className="error-msg">{errorMsg}</div>}
       </div>
 
       {/* My seat */}

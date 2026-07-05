@@ -19,6 +19,7 @@ export interface PlayerView {
   isAllIn: boolean
   isSpectating: boolean
   rebuyCount: number
+  isReady: boolean
   holeCards?: Card[]
 }
 
@@ -46,6 +47,7 @@ export interface GameState {
   bigBlind: number
   turnTimeoutMs: number
   defaultStartingChips: number
+  ownerId: string
 }
 
 export interface RoomSummary {

@@ -121,6 +121,9 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
         sessionTokens.set(token, { roomId, playerId: player.id })
         playerToToken.set(playerKey(roomId, player.id), token)
 
+        const room = manager.getRoom(roomId)!
+        if (!room.ownerId) room.ownerId = player.id
+
         socketToPlayer.set(socket.id, { roomId, playerId: player.id })
         socket.join(roomId)
         socket.emit('room_joined', { roomId, playerId: player.id, seat: player.seat, sessionToken: token })
@@ -161,6 +164,22 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
     broadcastGameState(io, info.roomId, manager)
   })
 
+  socket.on('set_ready', () => {
+    try {
+      const info = socketToPlayer.get(socket.id)
+      if (!info) throw new Error('Not in a room')
+      const room = manager.getRoom(info.roomId)
+      if (!room) throw new Error('Room not found')
+      if (room.status !== 'waiting') throw new Error('Game already started')
+      const player = room.players.find((p) => p.id === info.playerId)
+      if (!player) throw new Error('Player not found')
+      player.isReady = !player.isReady
+      broadcastGameState(io, info.roomId, manager)
+    } catch (err) {
+      socket.emit('error', { message: (err as Error).message })
+    }
+  })
+
   socket.on('rebuy', () => {
     try {
       const info = socketToPlayer.get(socket.id)
@@ -191,7 +210,21 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
       if (room.status === 'playing' && room.bettingRound !== 'showdown') {
         throw new Error('Game already in progress')
       }
-      startHand(room)
+
+      let forceSpectating: Set<string> | undefined
+      if (room.status === 'waiting') {
+        if (info.playerId !== room.ownerId) {
+          throw new Error('Only the room owner can start the first game')
+        }
+        // Non-ready players (excluding owner) join as spectators
+        forceSpectating = new Set(
+          room.players
+            .filter((p) => !p.isReady && p.id !== room.ownerId)
+            .map((p) => p.id)
+        )
+      }
+
+      startHand(room, forceSpectating)
       broadcastGameState(io, info.roomId, manager)
       setTurnTimer(io, info.roomId, manager)
       broadcastRoomsList(io, manager)
