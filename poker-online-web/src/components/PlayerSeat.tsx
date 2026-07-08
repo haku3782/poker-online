@@ -52,6 +52,8 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
             {player.currentBet > 0 && (
               <span className="seat-bet">Bet: {player.currentBet}</span>
             )}
+          </div>
+          <div className="seat-row">
             {badge && (
               <span className={`badge ${badge.cls}`}>{badge.text}</span>
             )}
