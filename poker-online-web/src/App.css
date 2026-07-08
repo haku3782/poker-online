@@ -227,7 +227,11 @@ button:not(:disabled):hover { opacity: 0.82; }
   max-width: 580px;
   margin: 0 auto;
   gap: 0.6rem;
+  --card-w: 1.6rem;
+  --card-h: 2.3rem;
 }
+@media (min-width: 430px) { .table { --card-w: 2.0rem; --card-h: 2.9rem; } }
+@media (min-width: 580px) { .table { --card-w: 2.5rem; --card-h: 3.5rem; } }
 
 .loading { padding: 2rem; text-align: center; color: #667; }
 
@@ -407,24 +411,9 @@ button:not(:disabled):hover { opacity: 0.82; }
   min-height: 3rem;
 }
 
-.felt-top .player-seat.compact .seat-cards {
-  --card-w: 1.4rem;
-  --card-h: 2.0rem;
-}
 .felt-side .player-seat.compact .seat-cards {
-  --card-w: 1.4rem;
-  --card-h: 2.0rem;
   flex-direction: column;
   gap: 0.2rem;
-}
-
-@media (min-width: 430px) {
-  .felt-top .player-seat.compact .seat-cards { --card-w: 1.8rem; --card-h: 2.6rem; }
-  .felt-side .player-seat.compact .seat-cards { --card-w: 1.8rem; --card-h: 2.6rem; }
-}
-@media (min-width: 580px) {
-  .felt-top .player-seat.compact .seat-cards { --card-w: 2.2rem; --card-h: 3.1rem; }
-  .felt-side .player-seat.compact .seat-cards { --card-w: 2.2rem; --card-h: 3.1rem; }
 }
 
 /* カードごとに回転（コンテナは縦並びのまま） */
@@ -462,16 +451,6 @@ button:not(:disabled):hover { opacity: 0.82; }
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  --card-w: 1.4rem;
-  --card-h: 2.0rem;
-}
-
-@media (min-width: 430px) {
-  .felt-community { --card-w: 1.8rem; --card-h: 2.6rem; }
-}
-
-@media (min-width: 580px) {
-  .felt-community { --card-w: 2.2rem; --card-h: 3.1rem; }
 }
 
 .community-info {
@@ -644,19 +623,15 @@ button:not(:disabled):hover { opacity: 0.82; }
   overflow: hidden;
 }
 
-/* My cards match community card size (responsive) */
-.my-area .seat-cards { --card-w: 1.4rem; --card-h: 2.0rem; }
 .my-area .player-seat { height: 7.5rem; }
 
 @media (min-width: 430px) {
   .my-area { height: 9.5rem; }
-  .my-area .seat-cards { --card-w: 1.8rem; --card-h: 2.6rem; }
   .my-area .player-seat { height: 8.5rem; }
 }
 
 @media (min-width: 580px) {
   .my-area { height: 10.5rem; }
-  .my-area .seat-cards { --card-w: 2.2rem; --card-h: 3.1rem; }
   .my-area .player-seat { height: 9.5rem; }
 }
 
@@ -728,10 +703,10 @@ button:not(:disabled):hover { opacity: 0.82; }
   .table { padding: 0.4rem; gap: 0.4rem; }
   .felt-area { gap: 0.2rem; padding: 0.4rem; }
   .felt-status { min-height: 1.8rem; }
-  .felt-community { --card-w: 1.3rem; --card-h: 1.9rem; gap: 0.2rem; }
+  .table { --card-w: 1.5rem; --card-h: 2.1rem; }
+  .felt-community { gap: 0.2rem; }
   .my-area { height: 7rem; }
   .my-area .player-seat { height: 6rem; }
-  .my-area .seat-cards { --card-w: 1.3rem; --card-h: 1.9rem; }
   .player-seat:not(.compact) { height: 6.5rem; }
   .actions { height: 5.5rem; }
 }
