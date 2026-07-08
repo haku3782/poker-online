@@ -1,6 +1,19 @@
 import type { Server } from 'socket.io'
 import type { RoomManager } from './game/room.js'
 import { socketToPlayer } from './session.js'
+import { evaluateHand, HandCategory } from './game/handEvaluator.js'
+
+const HAND_NAMES: Record<HandCategory, string> = {
+  [HandCategory.HighCard]: 'High Card',
+  [HandCategory.Pair]: 'One Pair',
+  [HandCategory.TwoPair]: 'Two Pair',
+  [HandCategory.ThreeOfAKind]: 'Three of a Kind',
+  [HandCategory.Straight]: 'Straight',
+  [HandCategory.Flush]: 'Flush',
+  [HandCategory.FullHouse]: 'Full House',
+  [HandCategory.FourOfAKind]: 'Four of a Kind',
+  [HandCategory.StraightFlush]: 'Straight Flush',
+}
 
 export function broadcastRoomsList(io: Server, manager: RoomManager): void {
   io.emit('rooms_list', manager.listRooms())
@@ -52,12 +65,21 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
       ...baseState,
       players: basePlayers.map((p) => {
         if (p.id === info.playerId && ownPlayer) {
-          return { ...p, holeCards: ownPlayer.holeCards }
+          let handRank: string | undefined
+          if (room.bettingRound === 'showdown' && !ownPlayer.hasFolded && !ownPlayer.isSpectating && ownPlayer.holeCards.length > 0) {
+            const allCards = [...ownPlayer.holeCards, ...room.communityCards]
+            if (allCards.length >= 5) handRank = HAND_NAMES[evaluateHand(allCards).category]
+          }
+          return { ...p, holeCards: ownPlayer.holeCards, handRank }
         }
         if (room.bettingRound === 'showdown') {
           const rp = room.players.find((x) => x.id === p.id)
           if (rp && !rp.hasFolded && !rp.isSpectating && rp.holeCards.length > 0) {
-            return { ...p, holeCards: rp.holeCards }
+            const allCards = [...rp.holeCards, ...room.communityCards]
+            const handRank = allCards.length >= 5
+              ? HAND_NAMES[evaluateHand(allCards).category]
+              : undefined
+            return { ...p, holeCards: rp.holeCards, handRank }
           }
         }
         return p

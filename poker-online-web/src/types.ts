@@ -21,6 +21,7 @@ export interface PlayerView {
   rebuyCount: number
   isReady: boolean
   holeCards?: Card[]
+  handRank?: string
 }
 
 export interface PotResult {

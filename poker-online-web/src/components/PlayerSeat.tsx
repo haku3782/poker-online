@@ -55,6 +55,9 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
             {badge && (
               <span className={`badge ${badge.cls}`}>{badge.text}</span>
             )}
+            {!badge && player.handRank && (
+              <span className="hand-rank">{player.handRank}</span>
+            )}
           </div>
           {isDealer && (
             <div className="seat-row seat-row-dealer">
@@ -69,6 +72,7 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
   return (
     <div className={classes}>
       {isDealer && <span className="dealer-btn">D</span>}
+      {player.handRank && <span className="hand-rank">{player.handRank}</span>}
       <div className="seat-cards">
         {player.isSpectating ? (
           [<CardSlot key={0} />, <CardSlot key={1} />]
@@ -88,15 +92,12 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
           <span className="seat-chips">{player.chips}</span>
         </div>
         <div className="seat-row">
-          <span className="seat-bet" style={{ visibility: player.currentBet > 0 ? 'visible' : 'hidden' }}>
-            Bet: {player.currentBet}
-          </span>
-          <span
-            className={`badge ${badge?.cls ?? 'folded-badge'}`}
-            style={{ visibility: badge ? 'visible' : 'hidden' }}
-          >
-            {badge?.text ?? 'FOLD'}
-          </span>
+          {player.currentBet > 0 && (
+            <span className="seat-bet">Bet: {player.currentBet}</span>
+          )}
+          {badge && (
+            <span className={`badge ${badge.cls}`}>{badge.text}</span>
+          )}
         </div>
         <div className="seat-row">
           <span className="seat-rebuy" style={{ visibility: player.rebuyCount > 0 ? 'visible' : 'hidden' }}>

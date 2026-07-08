@@ -453,7 +453,6 @@ button:not(:disabled):hover { opacity: 0.82; }
 .felt-side .seat-row { flex-direction: column; gap: 0.04rem; min-height: 0; }
 .felt-side .seat-name { font-size: 0.65rem; max-width: 3.5rem; }
 .felt-side .seat-chips { font-size: 0.65rem; }
-.felt-side .seat-bet { display: none; }
 
 @media (min-width: 430px) {
   .felt-side { width: 6.0rem; }
@@ -533,7 +532,15 @@ button:not(:disabled):hover { opacity: 0.82; }
 .player-seat.compact .seat-info { font-size: 0.72rem; gap: 0.1rem; }
 .player-seat.compact .seat-name { max-width: 3.5rem; }
 
-.seat-cards { display: flex; gap: 0.2rem; }
+.seat-cards { display: flex; gap: 0.2rem; flex-wrap: wrap; justify-content: center; }
+
+.hand-rank {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+}
 
 .seat-info {
   display: flex;
