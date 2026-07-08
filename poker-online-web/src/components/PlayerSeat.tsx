@@ -32,7 +32,6 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
     const hasCards = revealedCards || (!player.hasFolded && !player.isSpectating)
     return (
       <div className={`${classes}${hasCards ? ' revealed' : ''}`}>
-        {isDealer && <span className="dealer-btn">D</span>}
         {hasCards && (
           <div className="seat-cards">
             {revealedCards
@@ -57,6 +56,11 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
               {badge?.text ?? 'FOLD'}
             </span>
           </div>
+          {isDealer && (
+            <div className="seat-row seat-row-dealer">
+              <span className="dealer-btn">D</span>
+            </div>
+          )}
         </div>
       </div>
     )
