@@ -616,6 +616,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   left: 50%;
   transform: translateX(-50%);
 }
+.my-area .player-seat.dealer { padding-top: 2.1rem; }
 .badge.allin           { background: #903010; color: #fcc; }
 .badge.folded-badge    { background: #333; color: #888; }
 .badge.spectating-badge { background: #1a3060; color: #88c; }

@@ -17,6 +17,7 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
     player.hasFolded && 'folded',
     player.isSpectating && 'spectating',
     isMe && 'me',
+    isDealer && 'dealer',
   ].filter(Boolean).join(' ')
 
   const badge = player.isSpectating
