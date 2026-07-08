@@ -415,7 +415,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   --card-w: 1.4rem;
   --card-h: 2.0rem;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.2rem;
 }
 
 @media (min-width: 430px) {
@@ -430,9 +430,11 @@ button:not(:disabled):hover { opacity: 0.82; }
 /* カードごとに回転（コンテナは縦並びのまま） */
 .felt-side-left .player-seat.compact .seat-cards .card {
   transform: rotate(90deg);
+  margin: calc((var(--card-w) - var(--card-h)) / 2) 0;
 }
 .felt-side-right .player-seat.compact .seat-cards .card {
   transform: rotate(-90deg);
+  margin: calc((var(--card-w) - var(--card-h)) / 2) 0;
 }
 
 /* Side seats: vertical stacking to fit in narrow column */
