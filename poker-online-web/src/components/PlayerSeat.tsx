@@ -28,11 +28,15 @@ export function PlayerSeat({ player, isActive, isMe, compact }: Props) {
 
   if (compact) {
     const revealedCards = player.holeCards && player.holeCards.length > 0
+    const hasCards = revealedCards || (!player.hasFolded && !player.isSpectating)
     return (
-      <div className={`${classes}${revealedCards ? ' revealed' : ''}`}>
-        {revealedCards && (
+      <div className={`${classes}${hasCards ? ' revealed' : ''}`}>
+        {hasCards && (
           <div className="seat-cards">
-            {player.holeCards!.map((c, i) => <CardFace key={i} card={c} />)}
+            {revealedCards
+              ? player.holeCards!.map((c, i) => <CardFace key={i} card={c} />)
+              : [<CardBack key={0} />, <CardBack key={1} />]
+            }
           </div>
         )}
         <div className="seat-info">
