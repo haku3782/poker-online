@@ -5,10 +5,11 @@ interface Props {
   player: PlayerView
   isActive: boolean
   isMe: boolean
+  isDealer?: boolean
   compact?: boolean
 }
 
-export function PlayerSeat({ player, isActive, isMe, compact }: Props) {
+export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props) {
   const classes = [
     'player-seat',
     compact && 'compact',
@@ -31,6 +32,7 @@ export function PlayerSeat({ player, isActive, isMe, compact }: Props) {
     const hasCards = revealedCards || (!player.hasFolded && !player.isSpectating)
     return (
       <div className={`${classes}${hasCards ? ' revealed' : ''}`}>
+        {isDealer && <span className="dealer-btn">D</span>}
         {hasCards && (
           <div className="seat-cards">
             {revealedCards
@@ -62,6 +64,7 @@ export function PlayerSeat({ player, isActive, isMe, compact }: Props) {
 
   return (
     <div className={classes}>
+      {isDealer && <span className="dealer-btn">D</span>}
       <div className="seat-cards">
         {player.isSpectating ? (
           [<CardSlot key={0} />, <CardSlot key={1} />]

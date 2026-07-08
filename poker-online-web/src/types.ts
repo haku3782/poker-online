@@ -48,6 +48,7 @@ export interface GameState {
   turnTimeoutMs: number
   defaultStartingChips: number
   ownerId: string
+  dealerPlayerId: string | null
 }
 
 export interface RoomSummary {

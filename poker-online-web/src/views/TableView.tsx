@@ -148,6 +148,9 @@ export function TableView({ myPlayerId, onLeave }: Props) {
         </button>
       </div>
 
+      {/* Unified table felt */}
+      <div className="table-felt">
+
       {/* Felt area: oval table */}
       <div className="felt-area">
         {/* Top opponents (always up to 3) */}
@@ -158,6 +161,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
               player={p}
               isActive={state.currentTurnPlayerId === p.id}
               isMe={false}
+              isDealer={state.dealerPlayerId === p.id}
               compact={true}
             />
           ))}
@@ -171,6 +175,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 player={sideLeft}
                 isActive={state.currentTurnPlayerId === sideLeft.id}
                 isMe={false}
+                isDealer={state.dealerPlayerId === sideLeft.id}
                 compact={true}
               />
             )}
@@ -201,6 +206,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 player={sideRight}
                 isActive={state.currentTurnPlayerId === sideRight.id}
                 isMe={false}
+                isDealer={state.dealerPlayerId === sideRight.id}
                 compact={true}
               />
             )}
@@ -240,9 +246,12 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             player={me}
             isActive={isMyTurn}
             isMe={true}
+            isDealer={state.dealerPlayerId === me.id}
           />
         </div>
       )}
+
+      </div>{/* /table-felt */}
 
       {/* Actions */}
       <div className="actions">
