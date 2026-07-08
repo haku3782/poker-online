@@ -571,8 +571,8 @@ button:not(:disabled):hover { opacity: 0.82; }
   width: 1.2rem;
   height: 1.2rem;
   border-radius: 50%;
-  background: #e8e8e8;
-  color: #111;
+  background: #111;
+  color: #fff;
   font-size: 0.65rem;
   font-weight: 700;
   z-index: 1;

@@ -32,11 +32,13 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
     const revealedCards = player.holeCards && player.holeCards.length > 0
     const hasCards = revealedCards || (!player.hasFolded && !player.isSpectating)
     return (
-      <div className={`${classes}${hasCards ? ' revealed' : ''}`}>
-        {hasCards && (
+      <div className={`${classes}${!player.isSpectating ? ' revealed' : ''}`}>
+        {!player.isSpectating && (
           <div className="seat-cards">
             {revealedCards
               ? player.holeCards!.map((c, i) => <CardFace key={i} card={c} />)
+              : player.hasFolded
+              ? [<CardSlot key={0} />, <CardSlot key={1} />]
               : [<CardBack key={0} />, <CardBack key={1} />]
             }
           </div>
@@ -47,15 +49,12 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
             <span className="seat-chips">{player.chips}</span>
           </div>
           <div className="seat-row">
-            <span className="seat-bet" style={{ visibility: player.currentBet > 0 ? 'visible' : 'hidden' }}>
-              Bet: {player.currentBet}
-            </span>
-            <span
-              className={`badge ${badge?.cls ?? 'folded-badge'}`}
-              style={{ visibility: badge ? 'visible' : 'hidden' }}
-            >
-              {badge?.text ?? 'FOLD'}
-            </span>
+            {player.currentBet > 0 && (
+              <span className="seat-bet">Bet: {player.currentBet}</span>
+            )}
+            {badge && (
+              <span className={`badge ${badge.cls}`}>{badge.text}</span>
+            )}
           </div>
           {isDealer && (
             <div className="seat-row seat-row-dealer">
