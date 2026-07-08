@@ -589,8 +589,8 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 .card.red   { color: #c00; }
 .card.black { color: #111; }
-.card-rank  { font-size: 0.95rem; }
-.card-suit  { font-size: 0.75rem; }
+.card-rank  { font-size: calc(var(--card-w) * 0.68); }
+.card-suit  { font-size: calc(var(--card-w) * 0.54); }
 
 .card.back {
   background: #16304a;
