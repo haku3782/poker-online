@@ -134,9 +134,15 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     setShowRaise(true)
   }
 
-  const topOpponents = others.slice(0, 3)
-  const sideLeft = others[3] ?? null
-  const sideRight = others[4] ?? null
+  const mySeat = me?.seat ?? 0
+  const othersClockwise = others.sort((a, b) => {
+    const distA = (a.seat - mySeat + state.maxSeats) % state.maxSeats
+    const distB = (b.seat - mySeat + state.maxSeats) % state.maxSeats
+    return distA - distB
+  })
+  const sideLeft     = othersClockwise[0] ?? null
+  const topOpponents = othersClockwise.slice(1, 4)
+  const sideRight    = othersClockwise[4] ?? null
 
   return (
     <div className="table">
