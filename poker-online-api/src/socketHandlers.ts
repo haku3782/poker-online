@@ -54,7 +54,8 @@ function setNextHandTimer(io: Server, roomId: string, manager: RoomManager): voi
       setTurnTimer(io, roomId, manager)
       broadcastRoomsList(io, manager)
     } catch {
-      // Not enough players to start
+      // Not enough players with chips — broadcast so clients clear the countdown ring
+      broadcastGameState(io, roomId, manager)
     }
   }, NEXT_HAND_DELAY_MS)
   nextHandTimers.set(roomId, t)
@@ -93,7 +94,12 @@ function doLeave(io: Server, info: { roomId: string; playerId: string }, manager
 
   if (manager.getRoom(info.roomId)) {
     broadcastGameState(io, info.roomId, manager)
-    setTurnTimer(io, info.roomId, manager)
+    const r = manager.getRoom(info.roomId)!
+    if (r.status === 'playing' && r.bettingRound === 'showdown') {
+      setNextHandTimer(io, info.roomId, manager)
+    } else {
+      setTurnTimer(io, info.roomId, manager)
+    }
   } else {
     clearTurnTimer(info.roomId)
     clearNextHandTimer(info.roomId, manager)
@@ -229,6 +235,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
       if (player.chips > 0) throw new Error('Cannot rebuy with chips remaining')
       player.chips = room.defaultStartingChips
       player.rebuyCount++
+      if (room.bettingRound === 'showdown') setNextHandTimer(io, info.roomId, manager)
       broadcastGameState(io, info.roomId, manager)
     } catch (err) {
       socket.emit('error', { message: (err as Error).message })
