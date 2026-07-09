@@ -14,6 +14,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
   const [errorMsg, setErrorMsg] = useState('')
   const [showRaise, setShowRaise] = useState(false)
   const [raiseAmount, setRaiseAmount] = useState(0)
+  const [actionTaken, setActionTaken] = useState(false)
 
   const handleLeave = useCallback(() => onLeave(), [onLeave])
 
@@ -22,6 +23,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
       setState(gs)
       setErrorMsg('')
       setShowRaise(false)
+      setActionTaken(false)
     }
     const onError = (e: { message: string }) => setErrorMsg(e.message)
     const onRoomLeft = () => handleLeave()
@@ -121,16 +123,17 @@ export function TableView({ myPlayerId, onLeave }: Props) {
 
   const callAmount = me ? Math.min(state.currentBetLevel - me.currentBet, me.chips) : 0
   const canCheck = me ? me.currentBet === state.currentBetLevel : false
-  const canAct = isMyTurn && !!me && !me.hasFolded && !me.isAllIn
+  const canAct = isMyTurn && !!me && !me.hasFolded && !me.isAllIn && !actionTaken
 
   const minRaise = state.currentBetLevel > 0 ? state.currentBetLevel * 2 : 20
   const maxRaise = me ? me.chips + me.currentBet : 0
 
   const isShowdown = state.bettingRound === 'showdown'
   const canStart = state.bettingRound === 'showdown' && state.players.length >= 2
-  const canSeeButtons = !!me && !me.hasFolded && !me.isAllIn && !me.isSpectating && state.status === 'playing' && !isShowdown
+  const canSeeButtons = !!me && !me.isAllIn && !me.isSpectating && state.status === 'playing' && !isShowdown
 
   function act(type: string, amount?: number) {
+    setActionTaken(true)
     socket.emit('player_action', { type, amount })
   }
 
