@@ -315,7 +315,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
               </button>
             ) : (
               <button className="btn-call" disabled={!canAct} onClick={() => act('call')}>
-                Call {callAmount}
+                Call
               </button>
             )}
           </div>
