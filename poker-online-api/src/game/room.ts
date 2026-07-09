@@ -16,6 +16,7 @@ export interface HandResult {
 
 export interface Room {
   id: string
+  name: string
   maxSeats: number
   smallBlind: number
   bigBlind: number
@@ -40,6 +41,7 @@ export interface Room {
 
 export interface RoomSummary {
   id: string
+  name: string
   playerCount: number
   maxSeats: number
   status: RoomStatus
@@ -49,6 +51,7 @@ export class RoomManager {
   private rooms = new Map<string, Room>()
 
   createRoom(options: {
+    name?: string
     maxSeats?: number
     smallBlind?: number
     bigBlind?: number
@@ -74,6 +77,7 @@ export class RoomManager {
 
     const room: Room = {
       id: crypto.randomUUID(),
+      name: options.name?.trim() || 'Room',
       maxSeats,
       smallBlind,
       bigBlind,
@@ -104,6 +108,7 @@ export class RoomManager {
   listRooms(): RoomSummary[] {
     return [...this.rooms.values()].map((room) => ({
       id: room.id,
+      name: room.name,
       playerCount: room.players.length,
       maxSeats: room.maxSeats,
       status: room.status

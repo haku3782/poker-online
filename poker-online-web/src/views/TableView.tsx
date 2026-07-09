@@ -53,7 +53,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     return (
       <div className="table">
         <div className="table-header">
-          <span className="header-room">Room {state.roomId.slice(0, 8)}…</span>
+          <span className="header-room">{state.name}</span>
           <button className="btn-leave" onClick={() => socket.emit('leave_room')}>
             Leave
           </button>
@@ -153,7 +153,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     <div className="table">
       {/* Header */}
       <div className="table-header">
-        <span className="header-room">Room {state.roomId.slice(0, 8)}…</span>
+        <span className="header-room">{state.name}</span>
         <button className="btn-leave" onClick={() => socket.emit('leave_room')}>
           Leave
         </button>

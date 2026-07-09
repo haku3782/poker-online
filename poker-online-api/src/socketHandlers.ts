@@ -124,6 +124,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
   socket.on(
     'create_room',
     (options: {
+      name?: string
       maxSeats?: number
       smallBlind?: number
       bigBlind?: number

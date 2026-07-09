@@ -56,6 +56,7 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
     ownerId: room.ownerId,
     dealerPlayerId: room.players[room.dealerIndex]?.id ?? null,
     autoStartAt: room.autoStartAt,
+    name: room.name,
   }
 
   // Send personalized state to each socket in this room (hole cards only to owner)

@@ -35,6 +35,7 @@ export interface HandResult {
 
 export interface GameState {
   roomId: string
+  name: string
   status: RoomStatus
   bettingRound: BettingRound
   communityCards: Card[]
@@ -55,6 +56,7 @@ export interface GameState {
 
 export interface RoomSummary {
   id: string
+  name: string
   playerCount: number
   maxSeats: number
   status: RoomStatus

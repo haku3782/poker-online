@@ -200,6 +200,8 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 
 .settings-num:focus { border-color: var(--gold); }
+.settings-text { width: 100%; max-width: 200px; padding: 0.3rem 0.6rem; border-radius: 5px; border: 1px solid #2a5a40; background: #0a1a12; color: #e8e8e8; font-size: 0.85rem; outline: none; }
+.settings-text:focus { border-color: var(--gold); }
 
 /* Waiting rules row */
 .waiting-rules {

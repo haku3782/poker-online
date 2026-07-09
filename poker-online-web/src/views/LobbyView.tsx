@@ -11,6 +11,7 @@ export function LobbyView({ onJoined }: Props) {
   const [rooms, setRooms] = useState<RoomSummary[]>([])
   const [connected, setConnected] = useState(socket.connected)
   const [errorMsg, setErrorMsg] = useState('')
+  const [roomName, setRoomName] = useState('')
   const [maxSeats, setMaxSeats] = useState(6)
   const [turnTimeoutMs, setTurnTimeoutMs] = useState(30_000)
   const [smallBlind, setSmallBlind] = useState(10)
@@ -56,7 +57,7 @@ export function LobbyView({ onJoined }: Props) {
 
   function createRoom() {
     setErrorMsg('')
-    socket.emit('create_room', { maxSeats, turnTimeoutMs, smallBlind, bigBlind, defaultStartingChips: startingChips })
+    socket.emit('create_room', { name: roomName.trim() || `${trimmed}'s Room`, maxSeats, turnTimeoutMs, smallBlind, bigBlind, defaultStartingChips: startingChips })
   }
 
   return (
@@ -81,7 +82,6 @@ export function LobbyView({ onJoined }: Props) {
 
       <div className="room-settings">
         <h2>Room Settings</h2>
-
         <div className="settings-row">
           <label>Max Players</label>
           <div className="btn-group">
@@ -141,6 +141,18 @@ export function LobbyView({ onJoined }: Props) {
             onChange={(e) => setStartingChips(Number(e.target.value))}
           />
         </div>
+
+        <div className="settings-row">
+          <label>Room Name</label>
+          <input
+            type="text"
+            className="settings-text"
+            placeholder={trimmed ? `${trimmed}'s Room` : ''}
+            value={roomName}
+            maxLength={24}
+            onChange={(e) => setRoomName(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="lobby-actions">
@@ -162,7 +174,7 @@ export function LobbyView({ onJoined }: Props) {
           rooms.map((room) => (
             <div key={room.id} className="room-card">
               <div className="room-info">
-                <span className="room-id-short">{room.id.slice(0, 8)}…</span>
+                <span className="room-id-short">{room.name}</span>
                 <span className="room-players">{room.playerCount}/{room.maxSeats} players</span>
                 <span className={`status ${room.status}`}>{room.status}</span>
               </div>
