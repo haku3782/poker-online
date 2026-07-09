@@ -83,8 +83,11 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTime
           </div>
         )}
         {cards}
-        {timerPosition === 'inner' && isActive && !!turnTimeoutMs && turnTimeoutMs > 0 && (
-          <div className="turn-timer-bar inner" style={{ animationDuration: `${turnTimeoutMs}ms` }} />
+        {timerPosition === 'inner' && !!turnTimeoutMs && turnTimeoutMs > 0 && (
+          <div
+            className={`turn-timer-bar inner${isActive ? ' animating' : ''}`}
+            style={isActive ? { animationDuration: `${turnTimeoutMs}ms` } : undefined}
+          />
         )}
         {info}
         {timerPosition !== 'inner' && isActive && !!turnTimeoutMs && turnTimeoutMs > 0 && (

@@ -618,6 +618,10 @@ button:not(:disabled):hover { opacity: 0.82; }
   border-radius: 3px;
 }
 .turn-timer-bar.inner::before {
+  content: none;
+}
+.turn-timer-bar.inner.animating::before {
+  content: '';
   width: 100%; height: 100%;
   border-radius: inherit;
   transform-origin: left;
