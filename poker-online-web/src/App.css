@@ -640,6 +640,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 
 .my-area .player-seat.compact { width: 8rem; }
+.my-area .seat-row-dealer { min-height: 1.4rem; transform: translateY(-0.8rem); }
 .seat-rebuy { font-size: 0.65rem; color: #aaa; margin-left: 0.3rem; }
 .badge.allin           { background: #903010; color: #fcc; }
 .badge.folded-badge    { background: #333; color: #888; }
