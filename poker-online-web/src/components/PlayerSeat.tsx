@@ -74,7 +74,6 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
   return (
     <div className={classes}>
       {isDealer && <span className="dealer-btn">D</span>}
-      {player.handRank && <span className="hand-rank">{player.handRank}</span>}
       <div className="seat-cards">
         {player.isSpectating ? (
           [<CardSlot key={0} />, <CardSlot key={1} />]
@@ -99,6 +98,9 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
           )}
           {badge && (
             <span className={`badge ${badge.cls}`}>{badge.text}</span>
+          )}
+          {!badge && player.handRank && (
+            <span className="hand-rank">{player.handRank}</span>
           )}
         </div>
         <div className="seat-row">
