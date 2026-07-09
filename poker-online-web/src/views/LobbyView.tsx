@@ -74,7 +74,7 @@ export function LobbyView({ onJoined }: Props) {
           type="text"
           placeholder="Your name"
           value={name}
-          maxLength={20}
+          maxLength={10}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && trimmed) createRoom() }}
         />

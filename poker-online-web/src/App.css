@@ -514,9 +514,8 @@ button:not(:disabled):hover { opacity: 0.82; }
   background: rgba(0,0,0,0.25);
   transition: border-color 0.2s;
   width: 8rem;
-  height: 9rem;
+  min-height: 9rem;
   flex-shrink: 0;
-  overflow: hidden;
 }
 .player-seat.active { border-color: var(--gold); }
 .player-seat.folded { opacity: 0.4; }
@@ -709,22 +708,10 @@ button:not(:disabled):hover { opacity: 0.82; }
   justify-content: center;
   padding: 0.5rem;
   width: 100%;
-  height: 8.5rem;
   flex-shrink: 0;
-  overflow: hidden;
 }
 
-.my-area .player-seat { height: 7.5rem; }
-
-@media (min-width: 430px) {
-  .my-area { height: 9.5rem; }
-  .my-area .player-seat { height: 8.5rem; }
-}
-
-@media (min-width: 580px) {
-  .my-area { height: 10.5rem; }
-  .my-area .player-seat { height: 9.5rem; }
-}
+.my-area .player-seat { min-height: 7.5rem; height: auto; }
 
 /* Error */
 .error-msg {
@@ -805,8 +792,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   .felt-status { min-height: 1.8rem; }
   .table { --card-w: 1.5rem; --card-h: 2.1rem; }
   .felt-community { gap: 0.2rem; }
-  .my-area { height: 7rem; }
-  .my-area .player-seat { height: 6rem; }
-  .player-seat:not(.compact) { height: 6.5rem; }
+  .my-area .player-seat { min-height: 6rem; height: auto; }
+  .player-seat:not(.compact) { min-height: 6rem; height: auto; }
   .actions { height: 5.5rem; }
 }
