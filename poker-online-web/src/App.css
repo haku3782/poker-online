@@ -370,9 +370,11 @@ button:not(:disabled):hover { opacity: 0.82; }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--felt);
-  border-radius: 16px;
+  background: radial-gradient(ellipse at center, #2d8a50 0%, #1a5c35 55%, #0d3320 100%);
+  border-radius: 20px;
   overflow: hidden;
+  border: 5px solid #7a4e1a;
+  box-shadow: 0 0 0 10px #4a2e0a, 0 10px 40px rgba(0,0,0,0.8);
 }
 
 /* ===== FELT AREA (oval table) ===== */
@@ -697,8 +699,8 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 
 .card.placeholder {
-  background: rgba(255,255,255,0.06);
-  border: 2px dashed rgba(255,255,255,0.12);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 /* Community (inside felt-community) */
