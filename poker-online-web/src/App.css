@@ -355,6 +355,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   color: #889;
   padding: 0.25rem 0.65rem;
   font-size: 0.8rem;
+  margin-left: auto;
 }
 .btn-leave:hover { border-color: #f55; color: #f55; }
 
