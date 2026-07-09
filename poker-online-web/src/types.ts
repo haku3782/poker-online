@@ -50,6 +50,7 @@ export interface GameState {
   defaultStartingChips: number
   ownerId: string
   dealerPlayerId: string | null
+  autoStartAt?: number
 }
 
 export interface RoomSummary {

@@ -15,6 +15,9 @@ import {
 } from './session.js'
 
 const turnTimers = new Map<string, ReturnType<typeof setTimeout>>()
+const nextHandTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+const NEXT_HAND_DELAY_MS = 3000
 
 function clearTurnTimer(roomId: string): void {
   const t = turnTimers.get(roomId)
@@ -22,6 +25,39 @@ function clearTurnTimer(roomId: string): void {
     clearTimeout(t)
     turnTimers.delete(roomId)
   }
+}
+
+function clearNextHandTimer(roomId: string, manager: RoomManager): void {
+  const t = nextHandTimers.get(roomId)
+  if (t !== undefined) {
+    clearTimeout(t)
+    nextHandTimers.delete(roomId)
+  }
+  const room = manager.getRoom(roomId)
+  if (room) room.autoStartAt = undefined
+}
+
+function setNextHandTimer(io: Server, roomId: string, manager: RoomManager): void {
+  clearNextHandTimer(roomId, manager)
+  const room = manager.getRoom(roomId)
+  if (!room || room.bettingRound !== 'showdown') return
+
+  room.autoStartAt = Date.now() + NEXT_HAND_DELAY_MS
+  const t = setTimeout(() => {
+    nextHandTimers.delete(roomId)
+    const r = manager.getRoom(roomId)
+    if (!r || r.bettingRound !== 'showdown') return
+    r.autoStartAt = undefined
+    try {
+      startHand(r)
+      broadcastGameState(io, roomId, manager)
+      setTurnTimer(io, roomId, manager)
+      broadcastRoomsList(io, manager)
+    } catch {
+      // Not enough players to start
+    }
+  }, NEXT_HAND_DELAY_MS)
+  nextHandTimers.set(roomId, t)
 }
 
 function setTurnTimer(io: Server, roomId: string, manager: RoomManager): void {
@@ -60,6 +96,7 @@ function doLeave(io: Server, info: { roomId: string; playerId: string }, manager
     setTurnTimer(io, info.roomId, manager)
   } else {
     clearTurnTimer(info.roomId)
+    clearNextHandTimer(info.roomId, manager)
   }
   broadcastRoomsList(io, manager)
 }
@@ -224,6 +261,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
         )
       }
 
+      clearNextHandTimer(info.roomId, manager)
       startHand(room, forceSpectating)
       broadcastGameState(io, info.roomId, manager)
       setTurnTimer(io, info.roomId, manager)
@@ -242,7 +280,11 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
       clearTurnTimer(info.roomId)
       applyAction(room, info.playerId, { type, amount })
       broadcastGameState(io, info.roomId, manager)
-      setTurnTimer(io, info.roomId, manager)
+      if (room.bettingRound === 'showdown') {
+        setNextHandTimer(io, info.roomId, manager)
+      } else {
+        setTurnTimer(io, info.roomId, manager)
+      }
     } catch (err) {
       socket.emit('error', { message: (err as Error).message })
     }

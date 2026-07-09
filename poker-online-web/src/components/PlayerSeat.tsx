@@ -30,7 +30,6 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
 
   if (compact) {
     const revealedCards = player.holeCards && player.holeCards.length > 0
-    const hasCards = revealedCards || (!player.hasFolded && !player.isSpectating)
     return (
       <div className={`${classes}${!player.isSpectating ? ' revealed' : ''}`}>
         {!player.isSpectating && (
@@ -91,6 +90,9 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
         <div className="seat-row">
           <span className="seat-name">{player.name}{isMe && ' (You)'}</span>
           <span className="seat-chips">{player.chips}</span>
+          {player.rebuyCount > 0 && (
+            <span className="seat-rebuy">↩ ×{player.rebuyCount}</span>
+          )}
         </div>
         <div className="seat-row">
           {player.currentBet > 0 && (
@@ -102,11 +104,6 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
           {!badge && player.handRank && (
             <span className="hand-rank">{player.handRank}</span>
           )}
-        </div>
-        <div className="seat-row">
-          <span className="seat-rebuy" style={{ visibility: player.rebuyCount > 0 ? 'visible' : 'hidden' }}>
-            ↩ ×{player.rebuyCount}
-          </span>
         </div>
       </div>
     </div>

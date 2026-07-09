@@ -124,6 +124,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
 
   const isShowdown = state.bettingRound === 'showdown'
   const canStart = state.bettingRound === 'showdown' && state.players.length >= 2
+  const canSeeButtons = !!me && !me.hasFolded && !me.isAllIn && !me.isSpectating && state.status === 'playing' && !isShowdown
 
   function act(type: string, amount?: number) {
     socket.emit('player_action', { type, amount })
@@ -262,9 +263,23 @@ export function TableView({ myPlayerId, onLeave }: Props) {
       {/* Actions */}
       <div className="actions">
         {canStart && (
-          <button className="btn-start" onClick={() => socket.emit('start_game')}>
-            ▶ Next Hand
-          </button>
+          <div className="next-hand-countdown">
+            <div className="countdown-ring">
+              <svg width="48" height="48" viewBox="0 0 48 48">
+                <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="3"/>
+                <circle
+                  key={state.autoStartAt}
+                  className="ring-fill"
+                  cx="24" cy="24" r="18"
+                  fill="none"
+                  stroke="var(--gold)"
+                  strokeWidth="3"
+                  strokeDasharray="113.1"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+          </div>
         )}
 
         {me && me.chips === 0 && (
@@ -273,26 +288,26 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           </button>
         )}
 
-        {canAct && (
+        {canSeeButtons && (
           <div className="action-buttons">
-            <button className="btn-fold" onClick={() => act('fold')}>
+            <button className="btn-fold" disabled={!canAct} onClick={() => act('fold')}>
               Fold
             </button>
             {canCheck ? (
-              <button className="btn-check" onClick={() => act('check')}>
+              <button className="btn-check" disabled={!canAct} onClick={() => act('check')}>
                 Check
               </button>
             ) : (
-              <button className="btn-call" onClick={() => act('call')}>
+              <button className="btn-call" disabled={!canAct} onClick={() => act('call')}>
                 Call {callAmount}
               </button>
             )}
             {me && me.chips > callAmount && (
-              <button className="btn-raise" onClick={openRaise}>
+              <button className="btn-raise" disabled={!canAct} onClick={openRaise}>
                 Raise
               </button>
             )}
-            <button className="btn-allin" onClick={() => act('allin')}>
+            <button className="btn-allin" disabled={!canAct} onClick={() => act('allin')}>
               All-in
             </button>
           </div>

@@ -55,6 +55,7 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
     defaultStartingChips: room.defaultStartingChips,
     ownerId: room.ownerId,
     dealerPlayerId: room.players[room.dealerIndex]?.id ?? null,
+    autoStartAt: room.autoStartAt,
   }
 
   // Send personalized state to each socket in this room (hole cards only to owner)

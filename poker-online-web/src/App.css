@@ -624,6 +624,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   transform: translateX(-50%);
 }
 .my-area .player-seat { padding-top: 2.1rem; }
+.seat-rebuy { font-size: 0.65rem; color: #aaa; margin-left: 0.3rem; }
 .badge.allin           { background: #903010; color: #fcc; }
 .badge.folded-badge    { background: #333; color: #888; }
 .badge.spectating-badge { background: #1a3060; color: #88c; }
@@ -784,6 +785,13 @@ button:not(:disabled):hover { opacity: 0.82; }
 .btn-confirm-raise { background: #3a7a2a; color: #cfc; }
 .btn-cancel        { background: #333; color: #aaa; }
 .btn-rebuy         { background: #1a3a6a; color: #adf; width: 100%; }
+
+.next-hand-countdown { display: flex; flex-direction: column; align-items: center; padding: 0.25rem 0; }
+.countdown-ring { position: relative; width: 48px; height: 48px; }
+.countdown-ring svg { transform: rotate(-90deg); }
+@keyframes ring-drain { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 113.1; } }
+.ring-fill { animation: ring-drain 3s linear forwards; }
+.ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 600; color: var(--gold); }
 
 /* ===== SMALL SCREENS (iPhone SE など max-height 620px) ===== */
 @media (max-height: 620px) {

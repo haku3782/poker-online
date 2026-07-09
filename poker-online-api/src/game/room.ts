@@ -35,6 +35,7 @@ export interface Room {
   currentBetLevel: number
   playersToAct: string[]
   lastHandResult: HandResult | null
+  autoStartAt?: number
 }
 
 export interface RoomSummary {
