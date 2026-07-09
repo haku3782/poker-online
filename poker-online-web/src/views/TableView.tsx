@@ -303,11 +303,9 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             <button className="btn-allin" disabled={!canAct} onClick={() => act('allin')}>
               All-in
             </button>
-            {me && me.chips > callAmount && (
-              <button className="btn-raise" disabled={!canAct} onClick={openRaise}>
-                Raise
-              </button>
-            )}
+            <button className="btn-raise" disabled={!canAct || !(me && me.chips > callAmount)} onClick={openRaise}>
+              Raise
+            </button>
             <button className="btn-fold" disabled={!canAct} onClick={() => act('fold')}>
               Fold
             </button>
