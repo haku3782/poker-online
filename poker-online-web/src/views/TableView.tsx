@@ -209,24 +209,6 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 Bet: {state.currentBetLevel}
               </span>
             </div>
-          </div>
-
-          <div className="felt-side felt-side-right">
-            {sideRight && (
-              <PlayerSeat
-                player={sideRight}
-                isActive={state.currentTurnPlayerId === sideRight.id}
-                isMe={false}
-                isDealer={state.dealerPlayerId === sideRight.id}
-                compact={true}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Bottom: status + my seat */}
-        <div className="felt-bottom">
-          <div className="felt-status">
             {isShowdown && state.lastHandResult && (
               <div className="hand-result">
                 {state.lastHandResult.pots.map((pot, i) => {
@@ -249,6 +231,22 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             )}
             {errorMsg && <div className="error-msg">{errorMsg}</div>}
           </div>
+
+          <div className="felt-side felt-side-right">
+            {sideRight && (
+              <PlayerSeat
+                player={sideRight}
+                isActive={state.currentTurnPlayerId === sideRight.id}
+                isMe={false}
+                isDealer={state.dealerPlayerId === sideRight.id}
+                compact={true}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Bottom: my seat */}
+        <div className="felt-bottom">
           {me && (
             <div className="my-area">
               <PlayerSeat
@@ -256,6 +254,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 isActive={isMyTurn}
                 isMe={true}
                 isDealer={state.dealerPlayerId === me.id}
+                compact={true}
               />
             </div>
           )}

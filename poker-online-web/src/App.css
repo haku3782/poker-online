@@ -392,6 +392,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   justify-content: center;
   align-content: center;
   gap: 0.4rem;
+  background: rgba(255, 0, 0, 0.15);
 }
 
 .felt-top .player-seat.compact {
@@ -408,6 +409,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  background: rgba(0, 0, 255, 0.15);
 }
 
 /* Side seat pockets — always visible, wider on large screens */
@@ -456,14 +458,14 @@ button:not(:disabled):hover { opacity: 0.82; }
 /* Side seats: vertical stacking to fit in narrow column */
 .felt-side .seat-info { gap: 0.08rem; }
 .felt-side .seat-row { flex-direction: row; gap: 0.2rem; min-height: 0; flex-wrap: nowrap; }
-.felt-side .seat-name { font-size: 0.65rem; }
+.felt-side .seat-name { }
 .felt-side .seat-chips { font-size: 0.65rem; }
 
 @media (min-width: 430px) {
   .felt-side { width: 6.0rem; }
   /* Wide screens: restore horizontal layout for side seats */
   .felt-side .seat-row { flex-direction: row; gap: 0.4rem; min-height: 1.1rem; }
-  .felt-side .seat-name { font-size: 0.72rem; }
+  .felt-side .seat-name { }
   .felt-side .seat-chips { font-size: 0.72rem; }
   .felt-side .seat-bet { display: inline; }
 }
@@ -501,6 +503,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
+  background: rgba(0, 255, 0, 0.15);
 }
 
 /* Status row (turn indicator / hand result) */
@@ -512,6 +515,9 @@ button:not(:disabled):hover { opacity: 0.82; }
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
 }
 
 /* Player seat */
@@ -573,7 +579,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   width: 100%;
   min-height: 1.1rem;
 }
-.seat-name   { font-weight: 600; word-break: break-word; }
+.seat-name   { font-weight: 600; word-break: break-word; font-size: 0.78rem; }
 .seat-chips  { color: #60d080; white-space: nowrap; }
 .seat-bet    { color: var(--gold); white-space: nowrap; }
 .seat-rebuy  { font-size: 0.65rem; color: #778; white-space: nowrap; }
@@ -631,14 +637,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   transform: translateY(-50%);
 }
 
-/* 自分のシート → シート上端中央（コミュニティ側） */
-.my-area .dealer-btn {
-  bottom: auto;
-  top: 0.2rem;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.my-area .player-seat { padding-top: 2.1rem; }
+.my-area .player-seat.compact { width: 8rem; }
 .seat-rebuy { font-size: 0.65rem; color: #aaa; margin-left: 0.3rem; }
 .badge.allin           { background: #903010; color: #fcc; }
 .badge.folded-badge    { background: #333; color: #888; }
