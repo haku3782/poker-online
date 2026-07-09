@@ -224,43 +224,43 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           </div>
         </div>
 
-        {/* Status: turn / result */}
-        <div className="felt-status">
-          {isShowdown && state.lastHandResult && (
-            <div className="hand-result">
-              {state.lastHandResult.pots.map((pot, i) => {
-                const names = pot.winnerIds
-                  .map((id) => state.players.find((p) => p.id === id)?.name ?? id)
-                  .join(', ')
-                return <div key={i}>🏆 {names} wins {pot.amount} chips</div>
-              })}
+        {/* Bottom: status + my seat */}
+        <div className="felt-bottom">
+          <div className="felt-status">
+            {isShowdown && state.lastHandResult && (
+              <div className="hand-result">
+                {state.lastHandResult.pots.map((pot, i) => {
+                  const names = pot.winnerIds
+                    .map((id) => state.players.find((p) => p.id === id)?.name ?? id)
+                    .join(', ')
+                  return <div key={i}>🏆 {names} wins {pot.amount} chips</div>
+                })}
+              </div>
+            )}
+            {me?.isSpectating && (
+              <div className="spectating-banner">
+                Spectating — you will join at the start of the next hand
+              </div>
+            )}
+            {state.status === 'playing' && !isShowdown && !me?.isSpectating && (
+              <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
+                {isMyTurn ? '🎯 Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
+              </div>
+            )}
+            {errorMsg && <div className="error-msg">{errorMsg}</div>}
+          </div>
+          {me && (
+            <div className="my-area">
+              <PlayerSeat
+                player={me}
+                isActive={isMyTurn}
+                isMe={true}
+                isDealer={state.dealerPlayerId === me.id}
+              />
             </div>
           )}
-          {me?.isSpectating && (
-            <div className="spectating-banner">
-              Spectating — you will join at the start of the next hand
-            </div>
-          )}
-          {state.status === 'playing' && !isShowdown && !me?.isSpectating && (
-            <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
-              {isMyTurn ? '🎯 Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
-            </div>
-          )}
-          {errorMsg && <div className="error-msg">{errorMsg}</div>}
         </div>
       </div>
-
-      {/* My seat */}
-      {me && (
-        <div className="my-area">
-          <PlayerSeat
-            player={me}
-            isActive={isMyTurn}
-            isMe={true}
-            isDealer={state.dealerPlayerId === me.id}
-          />
-        </div>
-      )}
 
       </div>{/* /table-felt */}
 
