@@ -586,7 +586,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 /* 左端（左プレイヤー） */
 .turn-timer-bar.left {
   left: 0;
-  top: 50%; transform: translateY(-50%);
+  top: 0.5rem;
   width: 3px; height: calc(2 * var(--card-w) + 0.2rem);
   border-radius: 6px 0 0 6px;
 }
@@ -600,14 +600,14 @@ button:not(:disabled):hover { opacity: 0.82; }
 /* 右端（右プレイヤー） */
 .turn-timer-bar.right {
   right: 0; left: auto;
-  top: 50%; transform: translateY(-50%);
+  top: 0.5rem;
   width: 3px; height: calc(2 * var(--card-w) + 0.2rem);
   border-radius: 0 6px 6px 0;
 }
 .turn-timer-bar.right::before {
   width: 100%; height: 100%;
   border-radius: inherit;
-  transform-origin: top;
+  transform-origin: bottom;
   animation-name: timer-countdown-vertical;
 }
 
