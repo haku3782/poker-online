@@ -444,6 +444,8 @@ button:not(:disabled):hover { opacity: 0.82; }
   flex-direction: column;
   gap: 0.2rem;
 }
+.felt-side-left .player-seat.compact .seat-cards  { margin-left: 0.4rem; }
+.felt-side-right .player-seat.compact .seat-cards { margin-right: 0.4rem; }
 
 /* カードごとに回転（コンテナは縦並びのまま） */
 .felt-side-left .player-seat.compact .seat-cards .card {

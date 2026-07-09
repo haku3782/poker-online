@@ -150,7 +150,7 @@ export function LobbyView({ onJoined }: Props) {
             placeholder={trimmed ? `${trimmed}'s Room` : ''}
             value={roomName}
             maxLength={24}
-            onChange={(e) => setRoomName(e.target.value)}
+            onChange={(e) => setRoomName(e.target.value.slice(0, 24))}
           />
         </div>
       </div>
