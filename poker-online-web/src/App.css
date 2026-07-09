@@ -749,8 +749,10 @@ button:not(:disabled):hover { opacity: 0.82; }
   background: #2a8a50;
   color: #fff;
   width: 100%;
-  padding: 0.7rem;
-  font-size: 1rem;
+  max-width: 260px;
+  height: 2.5rem;
+  line-height: 1;
+  font-size: 0.9rem;
 }
 
 .action-buttons {

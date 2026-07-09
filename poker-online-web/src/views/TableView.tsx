@@ -93,7 +93,11 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           })()}
 
           {myPlayerId === state.ownerId && state.players.length >= 2 && (
-            <button className="btn-start" onClick={() => socket.emit('start_game')}>
+            <button
+              className="btn-start"
+              disabled={!state.players.some(p => p.id !== myPlayerId && p.isReady)}
+              onClick={() => socket.emit('start_game')}
+            >
               ▶ Start Game
             </button>
           )}
