@@ -270,9 +270,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
         </div>
       </div>
 
-      </div>{/* /table-felt */}
-
-      {/* Actions */}
+      {/* Actions — inside table rim */}
       <div className="actions">
         {canStart && (
           <div className="next-hand-countdown">
@@ -348,6 +346,8 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           </button>
         </div>
       </div>
+
+      </div>{/* /table-felt */}
     </div>
   )
 }
