@@ -7,9 +7,11 @@ interface Props {
   isMe: boolean
   isDealer?: boolean
   compact?: boolean
+  turnTimeoutMs?: number
+  timerPosition?: 'top' | 'left' | 'right' | 'inner'
 }
 
-export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props) {
+export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTimeoutMs, timerPosition }: Props) {
   const classes = [
     'player-seat',
     compact && 'compact',
@@ -81,7 +83,13 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
           </div>
         )}
         {cards}
+        {timerPosition === 'inner' && isActive && !!turnTimeoutMs && turnTimeoutMs > 0 && (
+          <div className="turn-timer-bar inner" style={{ animationDuration: `${turnTimeoutMs}ms` }} />
+        )}
         {info}
+        {timerPosition !== 'inner' && isActive && !!turnTimeoutMs && turnTimeoutMs > 0 && (
+          <div className={`turn-timer-bar ${timerPosition ?? 'top'}`} style={{ animationDuration: `${turnTimeoutMs}ms` }} />
+        )}
       </div>
     )
   }

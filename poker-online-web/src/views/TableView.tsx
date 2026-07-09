@@ -180,6 +180,8 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                     isMe={false}
                     isDealer={state.dealerPlayerId === p.id}
                     compact={true}
+                    turnTimeoutMs={state.turnTimeoutMs}
+                    timerPosition="top"
                   />
                 )}
               </div>
@@ -197,6 +199,8 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 isMe={false}
                 isDealer={state.dealerPlayerId === sideLeft.id}
                 compact={true}
+                turnTimeoutMs={state.turnTimeoutMs}
+                timerPosition="left"
               />
             )}
           </div>
@@ -249,6 +253,8 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 isMe={false}
                 isDealer={state.dealerPlayerId === sideRight.id}
                 compact={true}
+                turnTimeoutMs={state.turnTimeoutMs}
+                timerPosition="right"
               />
             )}
           </div>
@@ -264,6 +270,8 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 isMe={true}
                 isDealer={state.dealerPlayerId === me.id}
                 compact={true}
+                turnTimeoutMs={state.turnTimeoutMs}
+                timerPosition="inner"
               />
             </div>
           )}

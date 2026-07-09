@@ -553,8 +553,81 @@ button:not(:disabled):hover { opacity: 0.82; }
   min-height: 9rem;
   flex-shrink: 0;
 }
-.player-seat.active { border-color: var(--gold); }
 .player-seat.folded { opacity: 0.4; }
+
+.turn-timer-bar {
+  position: absolute;
+  background: rgba(255, 200, 50, 0.2);
+}
+.turn-timer-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  background: var(--gold);
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  animation-duration: inherit;
+}
+
+/* 上端（対面プレイヤー） */
+.turn-timer-bar.top {
+  top: 0;
+  left: 50%; transform: translateX(-50%);
+  width: calc(2 * var(--card-w) + 0.2rem); height: 3px;
+  border-radius: 6px 6px 0 0;
+}
+.turn-timer-bar.top::before {
+  width: 100%; height: 100%;
+  border-radius: inherit;
+  animation-name: timer-countdown;
+}
+
+/* 左端（左プレイヤー） */
+.turn-timer-bar.left {
+  left: 0;
+  top: 50%; transform: translateY(-50%);
+  width: 3px; height: calc(2 * var(--card-w) + 0.2rem);
+  border-radius: 6px 0 0 6px;
+}
+.turn-timer-bar.left::before {
+  width: 100%; height: 100%;
+  border-radius: inherit;
+  animation-name: timer-countdown-vertical;
+}
+
+/* 右端（右プレイヤー） */
+.turn-timer-bar.right {
+  right: 0; left: auto;
+  top: 50%; transform: translateY(-50%);
+  width: 3px; height: calc(2 * var(--card-w) + 0.2rem);
+  border-radius: 0 6px 6px 0;
+}
+.turn-timer-bar.right::before {
+  width: 100%; height: 100%;
+  border-radius: inherit;
+  animation-name: timer-countdown-vertical;
+}
+
+/* カードと情報の間（自分） */
+.turn-timer-bar.inner {
+  position: relative;
+  width: calc(2 * var(--card-w) + 0.2rem); height: 3px;
+  border-radius: 3px;
+}
+.turn-timer-bar.inner::before {
+  width: 100%; height: 100%;
+  border-radius: inherit;
+  animation-name: timer-countdown;
+}
+
+@keyframes timer-countdown {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+@keyframes timer-countdown-vertical {
+  from { height: 100%; }
+  to   { height: 0%; }
+}
 .player-seat.me     { background: transparent; }
 
 .player-seat.compact {
