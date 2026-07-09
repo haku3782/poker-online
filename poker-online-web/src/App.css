@@ -450,7 +450,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 
 /* Side seats: vertical stacking to fit in narrow column */
 .felt-side .seat-info { gap: 0.08rem; }
-.felt-side .seat-row { flex-direction: column; gap: 0.04rem; min-height: 0; }
+.felt-side .seat-row { flex-direction: row; gap: 0.2rem; min-height: 0; flex-wrap: nowrap; }
 .felt-side .seat-name { font-size: 0.65rem; max-width: 3.5rem; }
 .felt-side .seat-chips { font-size: 0.65rem; }
 

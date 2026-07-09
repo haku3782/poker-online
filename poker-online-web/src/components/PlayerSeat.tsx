@@ -46,6 +46,9 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
           <div className="seat-row">
             <span className="seat-name">{player.name}</span>
             <span className="seat-chips">{player.chips}</span>
+            {player.rebuyCount > 0 && (
+              <span className="seat-rebuy">↩ ×{player.rebuyCount}</span>
+            )}
           </div>
           <div className="seat-row">
             {player.currentBet > 0 && (
