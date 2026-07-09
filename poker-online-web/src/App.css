@@ -232,7 +232,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   height: calc(100dvh - 2rem);
   height: calc(100vh - 2rem); /* fallback */
   overflow: hidden;
-  padding: 0.6rem;
+  padding: 1rem;
   max-width: 580px;
   margin: 0 auto;
   gap: 0.6rem;
@@ -381,7 +381,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   border-radius: 20px;
   overflow: hidden;
   border: 3px solid #111;
-  box-shadow: 0 0 0 14px #1a1a1a, 0 12px 40px rgba(0,0,0,0.9);
+  box-shadow: 0 5px 0 14px #1a1a1a, 0 12px 40px rgba(0,0,0,0.9);
 }
 
 /* ===== FELT AREA (oval table) ===== */
