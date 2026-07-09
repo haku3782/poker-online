@@ -388,18 +388,22 @@ button:not(:disabled):hover { opacity: 0.82; }
   flex: 1;
   min-height: 0;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: center;
+  align-items: center;
   gap: 0.4rem;
   background: rgba(255, 0, 0, 0.15);
 }
 
-.felt-top .player-seat.compact {
+.felt-top-slot {
   flex: 1;
-  min-width: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+
+.felt-top-slot .player-seat.compact {
+  width: 100%;
   max-width: 8rem;
-  width: auto;
 }
 
 /* Center row */

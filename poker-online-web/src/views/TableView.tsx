@@ -164,18 +164,24 @@ export function TableView({ myPlayerId, onLeave }: Props) {
 
       {/* Felt area: oval table */}
       <div className="felt-area">
-        {/* Top opponents (always up to 3) */}
+        {/* Top opponents — always 3 fixed slots */}
         <div className="felt-top">
-          {topOpponents.map((p) => (
-            <PlayerSeat
-              key={p.id}
-              player={p}
-              isActive={state.currentTurnPlayerId === p.id}
-              isMe={false}
-              isDealer={state.dealerPlayerId === p.id}
-              compact={true}
-            />
-          ))}
+          {[0, 1, 2].map((i) => {
+            const p = topOpponents[i]
+            return (
+              <div key={i} className="felt-top-slot">
+                {p && (
+                  <PlayerSeat
+                    player={p}
+                    isActive={state.currentTurnPlayerId === p.id}
+                    isMe={false}
+                    isDealer={state.dealerPlayerId === p.id}
+                    compact={true}
+                  />
+                )}
+              </div>
+            )
+          })}
         </div>
 
         {/* Center: side seats + community cards */}
