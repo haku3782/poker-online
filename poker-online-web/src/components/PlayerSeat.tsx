@@ -30,47 +30,58 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact }: Props)
 
   if (compact) {
     const revealedCards = player.holeCards && player.holeCards.length > 0
-    return (
-      <div className={`${classes}${!player.isSpectating ? ' revealed' : ''}`}>
-        <div className="seat-cards">
-          {player.isSpectating
-            ? [<CardSlot key={0} />, <CardSlot key={1} />]
-            : revealedCards
-            ? player.holeCards!.map((c, i) => <CardFace key={i} card={c} />)
-            : player.hasFolded
-            ? [<CardSlot key={0} />, <CardSlot key={1} />]
-            : [<CardBack key={0} />, <CardBack key={1} />]
-          }
+    const cards = (
+      <div className="seat-cards">
+        {player.isSpectating
+          ? [<CardSlot key={0} />, <CardSlot key={1} />]
+          : revealedCards
+          ? player.holeCards!.map((c, i) => <CardFace key={i} card={c} />)
+          : player.hasFolded
+          ? [<CardSlot key={0} />, <CardSlot key={1} />]
+          : [<CardBack key={0} />, <CardBack key={1} />]
+        }
+      </div>
+    )
+    const info = (
+      <div className="seat-info">
+        <div className="seat-row">
+          <span className="seat-name">{player.name}</span>
         </div>
-        <div className="seat-info">
-          <div className="seat-row">
-            <span className="seat-name">{player.name}</span>
-          </div>
-          <div className="seat-row">
-            <span className="seat-chips">{player.chips}</span>
-            {player.rebuyCount > 0 && (
-              <span className="seat-rebuy">↩ ×{player.rebuyCount}</span>
-            )}
-          </div>
-          <div className="seat-row">
-            {player.currentBet > 0 && (
-              <span className="seat-bet">Bet: {player.currentBet}</span>
-            )}
-          </div>
-          <div className="seat-row">
-            {badge && (
-              <span className={`badge ${badge.cls}`}>{badge.text}</span>
-            )}
-            {!badge && player.handRank && (
-              <span className="hand-rank">{player.handRank}</span>
-            )}
-          </div>
-          {isDealer && (
-            <div className="seat-row seat-row-dealer">
-              <span className="dealer-btn">D</span>
-            </div>
+        <div className="seat-row">
+          <span className="seat-chips">{player.chips}</span>
+          {player.rebuyCount > 0 && (
+            <span className="seat-rebuy">↩ ×{player.rebuyCount}</span>
           )}
         </div>
+        <div className="seat-row">
+          {player.currentBet > 0 && (
+            <span className="seat-bet">Bet: {player.currentBet}</span>
+          )}
+        </div>
+        <div className="seat-row">
+          {badge && (
+            <span className={`badge ${badge.cls}`}>{badge.text}</span>
+          )}
+          {!badge && player.handRank && (
+            <span className="hand-rank">{player.handRank}</span>
+          )}
+        </div>
+        {!isMe && (
+          <div className="seat-row seat-row-dealer">
+            {isDealer && <span className="dealer-btn">D</span>}
+          </div>
+        )}
+      </div>
+    )
+    return (
+      <div className={`${classes}${!player.isSpectating ? ' revealed' : ''}`}>
+        {isMe && (
+          <div className="seat-row seat-row-dealer">
+            {isDealer && <span className="dealer-btn">D</span>}
+          </div>
+        )}
+        {cards}
+        {info}
       </div>
     )
   }
