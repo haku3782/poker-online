@@ -230,7 +230,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             )}
             {me?.isSpectating && (
               <div className="spectating-banner">
-                Spectating — you will join at the start of the next hand
+                Watching
               </div>
             )}
             {state.status === 'playing' && !isShowdown && !me?.isSpectating && (
