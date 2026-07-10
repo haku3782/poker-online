@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { socket } from '../socket'
-import type { GameState } from '../types'
+import type { GameState, PlayerView } from '../types'
 import { CardFace, CardSlot } from '../components/Card'
 import { PlayerSeat } from '../components/PlayerSeat'
 
@@ -51,7 +51,11 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     )
   }
 
+  // Derive a flat players array (non-null slots) for waiting screen logic.
+  const players: PlayerView[] = state.slots.filter((p): p is PlayerView => p !== null)
+
   if (state.status === 'waiting') {
+    const me = players.find((p) => p.id === myPlayerId)
     return (
       <div className="table">
         <div className="table-header">
@@ -63,10 +67,10 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           <p className="waiting-title">Waiting for players</p>
           <p className="waiting-room-id">{state.name}</p>
           <p className="waiting-count">
-            {state.players.length} / {state.maxSeats} players
+            {players.length} / {state.maxSeats} players
           </p>
           <ul className="waiting-player-list">
-            {state.players.map((p) => (
+            {players.map((p) => (
               <li key={p.id} className={p.id === myPlayerId ? 'me' : ''}>
                 <span className="waiting-player-name">
                   {p.name}{p.id === myPlayerId ? ' (You)' : ''}
@@ -81,22 +85,19 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             ))}
           </ul>
 
-          {myPlayerId !== state.ownerId && (() => {
-            const me = state.players.find((p) => p.id === myPlayerId)
-            return me ? (
-              <button
-                className={`btn-ready ${me.isReady ? 'active' : ''}`}
-                onClick={() => socket.emit('set_ready')}
-              >
-                {me.isReady ? 'Ready ✓' : 'Ready?'}
-              </button>
-            ) : null
-          })()}
+          {myPlayerId !== state.ownerId && me && (
+            <button
+              className={`btn-ready ${me.isReady ? 'active' : ''}`}
+              onClick={() => socket.emit('set_ready')}
+            >
+              {me.isReady ? 'Ready ✓' : 'Ready?'}
+            </button>
+          )}
 
-          {myPlayerId === state.ownerId && state.players.length >= 2 && (
+          {myPlayerId === state.ownerId && players.length >= 2 && (
             <button
               className="btn-start"
-              disabled={!state.players.some(p => p.id !== myPlayerId && p.isReady)}
+              disabled={!players.some(p => p.id !== myPlayerId && p.isReady)}
               onClick={() => socket.emit('start_game')}
             >
               ▶ Start Game
@@ -112,10 +113,11 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     )
   }
 
-  const me = state.players.find((p) => p.id === myPlayerId)
-  const others = state.players.filter((p) => p.id !== myPlayerId)
+  // Find my slot and build clockwise-positioned opponent slots.
+  const mySlotIndex = state.slots.findIndex((p) => p?.id === myPlayerId)
+  const me = mySlotIndex >= 0 ? state.slots[mySlotIndex] : null
   const isMyTurn = state.currentTurnPlayerId === myPlayerId
-  const actingPlayer = state.players.find((p) => p.id === state.currentTurnPlayerId)
+  const actingPlayer = state.slots.find((p) => p?.id === state.currentTurnPlayerId)
 
   const callAmount = me ? Math.min(state.currentBetLevel - me.currentBet, me.chips) : 0
   const canCheck = me ? me.currentBet === state.currentBetLevel : false
@@ -125,7 +127,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
   const maxRaise = me ? me.chips + me.currentBet : 0
 
   const isShowdown = state.bettingRound === 'showdown'
-  const canStart = state.bettingRound === 'showdown' && state.players.length >= 2
+  const canStart = state.bettingRound === 'showdown' && players.length >= 2
   const canSeeButtons = !!me && !me.isAllIn && !me.isSpectating && state.status === 'playing' && !isShowdown
 
   function act(type: string, amount?: number) {
@@ -138,15 +140,16 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     setShowRaise(true)
   }
 
-  const mySeat = me?.seat ?? 0
-  const othersClockwise = others.sort((a, b) => {
-    const distA = (a.seat - mySeat + state.maxSeats) % state.maxSeats
-    const distB = (b.seat - mySeat + state.maxSeats) % state.maxSeats
-    return distA - distB
+  // Build opponent slots in clockwise order from my position.
+  // byDist[i] = the player at clockwise distance i from me (i=0 is me, skipped).
+  const byDist: (PlayerView | null)[] = Array.from({ length: state.maxSeats }, (_, i) => {
+    if (i === 0) return null
+    return state.slots[(mySlotIndex + i) % state.maxSeats] ?? null
   })
-  const sideLeft     = othersClockwise[0] ?? null
-  const topOpponents = othersClockwise.slice(1, 4)
-  const sideRight    = othersClockwise[4] ?? null
+
+  const sideLeft     = byDist[1] ?? null
+  const topOpponents = [byDist[2] ?? null, byDist[3] ?? null, byDist[4] ?? null]
+  const sideRight    = byDist[5] ?? null
 
   return (
     <div className="table">
@@ -222,7 +225,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
               <div className="hand-result">
                 {state.lastHandResult.pots.map((pot, i) => {
                   const names = pot.winnerIds
-                    .map((id) => state.players.find((p) => p.id === id)?.name ?? id)
+                    .map((id) => state.slots.find((p) => p?.id === id)?.name ?? id)
                     .join(', ')
                   return <div key={i}>🏆 {names} wins {pot.amount} chips</div>
                 })}

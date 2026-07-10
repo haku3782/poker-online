@@ -187,7 +187,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
     }
 
     const room = manager.getRoom(session.roomId)
-    const player = room?.players.find((p) => p.id === session.playerId)
+    const player = room?.slots.find((p) => p?.id === session.playerId)
     if (!room || !player) {
       deleteSession(token, session.roomId, session.playerId)
       socket.emit('reconnect_failed', { reason: 'Room or player no longer exists' })
@@ -215,7 +215,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
       const room = manager.getRoom(info.roomId)
       if (!room) throw new Error('Room not found')
       if (room.status !== 'waiting') throw new Error('Game already started')
-      const player = room.players.find((p) => p.id === info.playerId)
+      const player = room.slots.find((p) => p?.id === info.playerId)
       if (!player) throw new Error('Player not found')
       player.isReady = !player.isReady
       broadcastGameState(io, info.roomId, manager)
@@ -230,7 +230,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
       if (!info) throw new Error('Not in a room')
       const room = manager.getRoom(info.roomId)
       if (!room) throw new Error('Room not found')
-      const player = room.players.find((p) => p.id === info.playerId)
+      const player = room.slots.find((p) => p?.id === info.playerId)
       if (!player) throw new Error('Player not found')
       if (player.chips > 0) throw new Error('Cannot rebuy with chips remaining')
       player.chips = room.defaultStartingChips
@@ -263,9 +263,9 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
         }
         // Non-ready players (excluding owner) join as spectators
         forceSpectating = new Set(
-          room.players
-            .filter((p) => !p.isReady && p.id !== room.ownerId)
-            .map((p) => p.id)
+          room.slots
+            .filter((p) => p && !p.isReady && p.id !== room.ownerId)
+            .map((p) => p!.id)
         )
       }
 

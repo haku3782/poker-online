@@ -23,20 +23,24 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
   const room = manager.getRoom(roomId)
   if (!room) return
 
-  const basePlayers = room.players.map((p) => ({
-    id: p.id,
-    name: p.name,
-    seat: p.seat,
-    chips: p.chips,
-    currentBet: p.currentBet,
-    hasFolded: p.hasFolded,
-    isAllIn: p.isAllIn,
-    isSpectating: p.isSpectating,
-    rebuyCount: p.rebuyCount,
-    isReady: p.isReady,
-  }))
+  // Serialize slots: null slots become null in the array.
+  const baseSlots = room.slots.map((p) => {
+    if (!p) return null
+    return {
+      id: p.id,
+      name: p.name,
+      seat: p.seat,
+      chips: p.chips,
+      currentBet: p.currentBet,
+      hasFolded: p.hasFolded,
+      isAllIn: p.isAllIn,
+      isSpectating: p.isSpectating,
+      rebuyCount: p.rebuyCount,
+      isReady: p.isReady,
+    }
+  })
 
-  const pot = room.players.reduce((sum, p) => sum + p.totalContributed, 0)
+  const pot = room.slots.reduce((sum, p) => sum + (p?.totalContributed ?? 0), 0)
 
   const baseState = {
     roomId: room.id,
@@ -47,25 +51,27 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
     pot,
     currentTurnPlayerId: room.currentTurnPlayerId,
     lastHandResult: room.lastHandResult,
-    players: basePlayers,
+    slots: baseSlots,
     maxSeats: room.maxSeats,
     smallBlind: room.smallBlind,
     bigBlind: room.bigBlind,
     turnTimeoutMs: room.turnTimeoutMs,
     defaultStartingChips: room.defaultStartingChips,
     ownerId: room.ownerId,
-    dealerPlayerId: room.players[room.dealerIndex]?.id ?? null,
+    // dealerIndex is a slot index — look up directly in slots array.
+    dealerPlayerId: room.slots[room.dealerIndex]?.id ?? null,
     autoStartAt: room.autoStartAt,
     name: room.name,
   }
 
-  // Send personalized state to each socket in this room (hole cards only to owner)
+  // Send personalized state to each socket in this room (hole cards only to owner).
   for (const [sid, info] of socketToPlayer.entries()) {
     if (info.roomId !== roomId) continue
-    const ownPlayer = room.players.find((p) => p.id === info.playerId)
+    const ownPlayer = room.slots.find((p) => p?.id === info.playerId)
     const personalizedState = {
       ...baseState,
-      players: basePlayers.map((p) => {
+      slots: baseSlots.map((p) => {
+        if (!p) return null
         if (p.id === info.playerId && ownPlayer) {
           let handRank: string | undefined
           if (room.bettingRound === 'showdown' && !ownPlayer.hasFolded && !ownPlayer.isSpectating && ownPlayer.holeCards.length > 0) {
@@ -75,7 +81,7 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
           return { ...p, holeCards: ownPlayer.holeCards, handRank }
         }
         if (room.bettingRound === 'showdown') {
-          const rp = room.players.find((x) => x.id === p.id)
+          const rp = room.slots.find((x) => x?.id === p.id)
           if (rp && !rp.hasFolded && !rp.isSpectating && rp.holeCards.length > 0) {
             const allCards = [...rp.holeCards, ...room.communityCards]
             const handRank = allCards.length >= 5

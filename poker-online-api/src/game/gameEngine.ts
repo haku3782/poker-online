@@ -13,37 +13,40 @@ export interface PlayerAction {
 
 const STREET_ORDER: BettingRound[] = ['preflop', 'flop', 'turn', 'river']
 
+// Returns non-null players in slot order (slot 0 → slot N-1).
 function seatOrder(room: Room): Player[] {
-  return [...room.players]
+  return room.slots.filter((p): p is Player => p !== null)
 }
 
-function indexAfter(count: number, index: number): number {
-  return (index + 1) % count
-}
-
+// Returns all non-folded, non-spectating players.
 function activePlayers(room: Room): Player[] {
-  return room.players.filter((p) => !p.hasFolded && !p.isSpectating)
+  return room.slots.filter((p): p is Player => p !== null && !p.hasFolded && !p.isSpectating)
 }
 
+// Returns players who can still place a bet (not folded, not all-in, not spectating).
 function playersWhoCanAct(room: Room): Player[] {
-  return room.players.filter((p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
+  return room.slots.filter((p): p is Player => p !== null && !p.hasFolded && !p.isAllIn && !p.isSpectating)
 }
 
-function firstToActAfter(room: Room, afterIndex: number, predicate: (p: Player) => boolean): string | null {
-  const ordered = seatOrder(room)
-  for (let offset = 1; offset <= ordered.length; offset++) {
-    const candidate = ordered[(afterIndex + offset) % ordered.length]
-    if (predicate(candidate)) return candidate.id
+// Finds the next non-null, non-spectating slot index starting after `fromSlot`.
+// `fromSlot` may be -1 (initial state) — iteration wraps correctly.
+function nextActiveSlot(room: Room, fromSlot: number): number {
+  for (let i = 1; i <= room.slots.length; i++) {
+    const idx = (fromSlot + i) % room.slots.length
+    const p = room.slots[idx]
+    if (p && !p.isSpectating) return idx
+  }
+  throw new Error('No active slot found')
+}
+
+// Finds the first player (by predicate) clockwise after `afterSlot`. Returns their id or null.
+function firstToActAfter(room: Room, afterSlot: number, predicate: (p: Player) => boolean): string | null {
+  for (let i = 1; i <= room.slots.length; i++) {
+    const idx = (afterSlot + i) % room.slots.length
+    const p = room.slots[idx]
+    if (p && predicate(p)) return p.id
   }
   return null
-}
-
-function nextActiveIndex(ordered: Player[], fromIndex: number): number {
-  for (let i = 1; i <= ordered.length; i++) {
-    const idx = (fromIndex + i) % ordered.length
-    if (!ordered[idx].isSpectating) return idx
-  }
-  throw new Error('No active player found')
 }
 
 function postBlind(player: Player, amount: number): void {
@@ -62,26 +65,24 @@ function payIntoPot(player: Player, amount: number): void {
 }
 
 function reopenActionAfterRaise(room: Room, raiserId: string): void {
-  room.playersToAct = room.players
-    .filter((p) => p.id !== raiserId && !p.hasFolded && !p.isAllIn && !p.isSpectating)
+  room.playersToAct = room.slots
+    .filter((p): p is Player => p !== null && p.id !== raiserId && !p.hasFolded && !p.isAllIn && !p.isSpectating)
     .map((p) => p.id)
 }
 
 export function startHand(room: Room, forceSpectating?: Set<string>): void {
-  // Bust out 0-chip players; apply forceSpectating for first-game ready check
-  for (const player of room.players) {
+  for (const player of room.slots) {
+    if (!player) continue
     player.isSpectating = player.chips === 0 || (forceSpectating?.has(player.id) ?? false)
   }
 
-  const allOrdered = seatOrder(room)
-  const active = allOrdered.filter(p => !p.isSpectating)
-
+  const active = room.slots.filter((p): p is Player => p !== null && !p.isSpectating)
   if (active.length < 2) {
     throw new Error('At least 2 players are required to start a hand')
   }
 
-  // Reset all players (spectators get holeCards cleared; active get cards dealt below)
-  for (const player of allOrdered) {
+  for (const player of room.slots) {
+    if (!player) continue
     player.holeCards = []
     player.currentBet = 0
     player.totalContributed = 0
@@ -95,27 +96,26 @@ export function startHand(room: Room, forceSpectating?: Set<string>): void {
   room.lastHandResult = null
   room.status = 'playing'
 
-  // Advance dealer to next active player (skips spectators)
-  room.dealerIndex = nextActiveIndex(allOrdered, room.dealerIndex)
+  // Advance dealer to next active slot (room.dealerIndex is a slot index; -1 on first hand).
+  room.dealerIndex = nextActiveSlot(room, room.dealerIndex)
 
-  // Heads-up is the one case where the dealer posts the small blind.
+  // Heads-up: dealer posts small blind.
   const isHeadsUp = active.length === 2
-  const sbIdx = isHeadsUp ? room.dealerIndex : nextActiveIndex(allOrdered, room.dealerIndex)
-  const bbIdx = nextActiveIndex(allOrdered, sbIdx)
+  const sbSlot = isHeadsUp ? room.dealerIndex : nextActiveSlot(room, room.dealerIndex)
+  const bbSlot = nextActiveSlot(room, sbSlot)
 
-  postBlind(allOrdered[sbIdx], room.smallBlind)
-  postBlind(allOrdered[bbIdx], room.bigBlind)
+  postBlind(room.slots[sbSlot]!, room.smallBlind)
+  postBlind(room.slots[bbSlot]!, room.bigBlind)
   room.currentBetLevel = room.bigBlind
 
-  // Deal cards only to active players
   for (const player of active) {
     player.holeCards = [room.deck.pop()!, room.deck.pop()!]
   }
 
   room.playersToAct = playersWhoCanAct(room).map((p) => p.id)
-  room.currentTurnPlayerId = firstToActAfter(room, bbIdx, (p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
+  room.currentTurnPlayerId = firstToActAfter(room, bbSlot, (p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
   if (room.currentTurnPlayerId === null) {
-    // All players are all-in from blinds — deal out remaining streets automatically
+    // All players are all-in from blinds — run out remaining streets automatically.
     advanceHandState(room)
   }
 }
@@ -124,7 +124,7 @@ export function applyAction(room: Room, playerId: string, action: PlayerAction):
   if (room.currentTurnPlayerId !== playerId) {
     throw new Error("It is not this player's turn")
   }
-  const player = room.players.find((p) => p.id === playerId)
+  const player = room.slots.find((p) => p?.id === playerId)
   if (!player) {
     throw new Error('Player not found in room')
   }
@@ -199,13 +199,11 @@ function advanceHandState(room: Room): void {
 }
 
 function nextPlayerToAct(room: Room): string {
-  const ordered = seatOrder(room)
-  const currentIndex = ordered.findIndex((p) => p.id === room.currentTurnPlayerId)
-  for (let offset = 1; offset <= ordered.length; offset++) {
-    const candidate = ordered[(currentIndex + offset) % ordered.length]
-    if (room.playersToAct.includes(candidate.id)) {
-      return candidate.id
-    }
+  const currentSlot = room.slots.findIndex((p) => p?.id === room.currentTurnPlayerId)
+  for (let i = 1; i <= room.slots.length; i++) {
+    const idx = (currentSlot + i) % room.slots.length
+    const p = room.slots[idx]
+    if (p && room.playersToAct.includes(p.id)) return p.id
   }
   throw new Error('No player left to act')
 }
@@ -219,15 +217,14 @@ function advanceToNextStreet(room: Room): void {
     room.communityCards.push(room.deck.pop()!)
   }
 
-  for (const player of room.players) {
-    player.currentBet = 0
+  for (const player of room.slots) {
+    if (player) player.currentBet = 0
   }
   room.currentBetLevel = 0
 
   const actable = playersWhoCanAct(room)
   if (actable.length < 2) {
-    // Nobody left can bet (everyone's all-in or folded out) — deal straight
-    // through the remaining streets to showdown instead of waiting on action.
+    // Nobody left can bet — run out remaining streets to showdown.
     if (room.bettingRound === 'river') {
       finishHandAtShowdown(room)
     } else {
@@ -244,15 +241,16 @@ function advanceToNextStreet(room: Room): void {
 }
 
 function finishHandBySingleWinner(room: Room, winner: Player): void {
-  const potTotal = room.players.reduce((sum, p) => sum + p.totalContributed, 0)
+  const potTotal = room.slots.reduce((sum, p) => sum + (p?.totalContributed ?? 0), 0)
   winner.chips += potTotal
   room.lastHandResult = { pots: [{ amount: potTotal, winnerIds: [winner.id] }] }
   endHand(room)
 }
 
 function finishHandAtShowdown(room: Room): void {
-  const pots = calculateSidePots(room.players)
-  const results = awardPots(pots, room.players, room.communityCards)
+  const nonNullPlayers = room.slots.filter((p): p is Player => p !== null)
+  const pots = calculateSidePots(nonNullPlayers)
+  const results = awardPots(pots, nonNullPlayers, room.communityCards)
   room.lastHandResult = { pots: results }
   endHand(room)
 }
@@ -266,7 +264,7 @@ function endHand(room: Room): void {
 // Fold a player regardless of turn order (used for disconnect / timeout).
 export function forfeitPlayer(room: Room, playerId: string): void {
   if (room.status !== 'playing' || room.bettingRound === 'showdown') return
-  const player = room.players.find((p) => p.id === playerId)
+  const player = room.slots.find((p) => p?.id === playerId)
   if (!player || player.hasFolded || player.isSpectating) return
 
   player.hasFolded = true

@@ -22,15 +22,16 @@ export interface Room {
   bigBlind: number
   turnTimeoutMs: number
   defaultStartingChips: number
-  players: Player[]
+  // Fixed-size array (length = maxSeats). Slot index is the permanent seat position.
+  // null means the seat is empty.
+  slots: (Player | null)[]
   status: RoomStatus
   ownerId: string
 
   deck: Card[]
   communityCards: Card[]
   bettingRound: BettingRound
-  // Index into the seat-ordered players array (not a literal seat number).
-  // Rotates by one position each hand among the players seated at the time.
+  // Slot index (0 to maxSeats-1) of the current dealer. -1 before the first hand.
   dealerIndex: number
   currentTurnPlayerId: string | null
   currentBetLevel: number
@@ -83,14 +84,12 @@ export class RoomManager {
       bigBlind,
       turnTimeoutMs,
       defaultStartingChips,
-      players: [],
+      slots: Array(maxSeats).fill(null) as (Player | null)[],
       status: 'waiting',
       ownerId: '',
       deck: [],
       communityCards: [],
       bettingRound: 'preflop',
-      // -1 so the first call to startHand() rotates it to 0 (no special-casing
-      // "is this the first hand" needed: indexAfter(n, -1) === 0).
       dealerIndex: -1,
       currentTurnPlayerId: null,
       currentBetLevel: 0,
@@ -109,7 +108,7 @@ export class RoomManager {
     return [...this.rooms.values()].map((room) => ({
       id: room.id,
       name: room.name,
-      playerCount: room.players.length,
+      playerCount: room.slots.filter(Boolean).length,
       maxSeats: room.maxSeats,
       status: room.status
     }))
@@ -118,24 +117,21 @@ export class RoomManager {
   joinRoom(roomId: string, playerName: string, chips?: number): Player {
     const room = this.rooms.get(roomId)
     if (!room) throw new Error('Room not found')
-    if (room.players.length >= room.maxSeats) throw new Error('Room is full')
+    const slotIndex = room.slots.findIndex(s => s === null)
+    if (slotIndex === -1) throw new Error('Room is full')
 
-    const takenSeats = new Set(room.players.map((p) => p.seat))
-    let seat = 0
-    while (takenSeats.has(seat)) seat++
-
-    const player = createPlayer(crypto.randomUUID(), playerName, seat, chips ?? room.defaultStartingChips)
+    const player = createPlayer(crypto.randomUUID(), playerName, slotIndex, chips ?? room.defaultStartingChips)
     player.isSpectating = room.status === 'playing'
-    room.players.push(player)
-    room.players.sort((a, b) => a.seat - b.seat)
+    room.slots[slotIndex] = player
     return player
   }
 
   leaveRoom(roomId: string, playerId: string): void {
     const room = this.rooms.get(roomId)
     if (!room) return
-    room.players = room.players.filter((p) => p.id !== playerId)
-    if (room.players.length === 0) {
+    const idx = room.slots.findIndex(p => p?.id === playerId)
+    if (idx !== -1) room.slots[idx] = null
+    if (room.slots.every(s => s === null)) {
       this.rooms.delete(roomId)
     }
   }

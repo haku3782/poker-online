@@ -43,7 +43,7 @@ export interface GameState {
   pot: number
   currentTurnPlayerId: string | null
   lastHandResult: HandResult | null
-  players: PlayerView[]
+  slots: (PlayerView | null)[]
   maxSeats: number
   smallBlind: number
   bigBlind: number
