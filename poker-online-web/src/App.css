@@ -604,7 +604,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 /* 左端（左プレイヤー） */
 .turn-timer-bar.left {
   left: 0;
-  top: 0.5rem;
+  top: 0.25rem;
   width: 3px; height: calc(2 * var(--card-w) + 0.2rem);
   border-radius: 6px 0 0 6px;
 }
@@ -618,7 +618,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 /* 右端（右プレイヤー） */
 .turn-timer-bar.right {
   right: 0; left: auto;
-  top: 0.5rem;
+  top: 0.25rem;
   width: 3px; height: calc(2 * var(--card-w) + 0.2rem);
   border-radius: 0 6px 6px 0;
 }
@@ -653,6 +653,9 @@ button:not(:disabled):hover { opacity: 0.82; }
 @keyframes timer-countdown-vertical {
   from { transform: scaleY(1); }
   to   { transform: scaleY(0); }
+}
+.turn-timer-bar.no-timer::before {
+  animation: none;
 }
 .player-seat.me     { background: transparent; }
 
@@ -912,14 +915,3 @@ button:not(:disabled):hover { opacity: 0.82; }
 .ring-fill { animation: ring-drain 3s linear forwards; }
 .ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 600; color: var(--gold); }
 
-/* ===== SMALL SCREENS (iPhone SE など max-height 620px) ===== */
-@media (max-height: 620px) {
-  .table { padding: 0.4rem; gap: 0.4rem; }
-  .table-felt { box-shadow: 0 3px 0 6px #1a1a1a, 0 8px 20px rgba(0,0,0,0.9); }
-  .felt-area { gap: 0.2rem; padding: 0.4rem; }
-  .felt-status { min-height: 1.8rem; }
-  .table { --card-w: 1.5rem; --card-h: 2.1rem; }
-  .felt-community { gap: 0.2rem; }
-  .player-seat:not(.compact) { min-height: 5rem; height: auto; }
-  .actions { height: 5.5rem; }
-}
