@@ -142,6 +142,11 @@ button:not(:disabled):hover { opacity: 0.82; }
   font-size: 0.85rem;
   padding: 0.4rem 0.8rem;
 }
+.btn-join.full {
+  background: #3a1a1a;
+  color: #a05050;
+  border: 1px solid #5a2a2a;
+}
 
 .empty { color: #556; font-style: italic; padding: 0.75rem 0; }
 
