@@ -51,6 +51,8 @@ button:not(:disabled):hover { opacity: 0.82; }
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  height: 100%;
+  overflow: hidden;
 }
 
 .lobby h1 {
@@ -98,15 +100,16 @@ button:not(:disabled):hover { opacity: 0.82; }
 
 .btn-primary   { background: #2a8a50; color: #fff; flex: 1; }
 .btn-secondary { background: #1e3a2a; color: #9b9; border: 1px solid #2a5a40; }
+.btn-outline   { background: transparent; color: #9b9; border: 1px solid #2a5a40; flex: 1; }
 
-.room-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.room-list { display: flex; flex-direction: column; gap: 0.6rem; flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 1rem; }
 
-.room-list h2 {
+.rooms-heading {
   font-size: 0.78rem;
   color: #667;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  margin-bottom: 0.2rem;
+  flex-shrink: 0;
 }
 
 .room-card {
@@ -153,13 +156,23 @@ button:not(:disabled):hover { opacity: 0.82; }
   border-radius: 10px;
 }
 
-.room-settings h2 {
-  font-size: 0.78rem;
+.settings-toggle {
+  background: none;
+  border: none;
+  padding: 0;
   color: #667;
+  font-size: 0.78rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  margin-bottom: 0.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  opacity: 1;
 }
+.settings-toggle:hover { opacity: 0.75; }
+.settings-toggle-icon { font-size: 0.6rem; }
 
 .settings-row {
   display: flex;

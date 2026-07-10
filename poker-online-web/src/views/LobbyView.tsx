@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function LobbyView({ onJoined }: Props) {
-  const [name, setName] = useState('')
+  const [name, setName] = useState(() => sessionStorage.getItem('poker_player_name') ?? '')
   const [rooms, setRooms] = useState<RoomSummary[]>([])
   const [connected, setConnected] = useState(socket.connected)
   const [errorMsg, setErrorMsg] = useState('')
@@ -17,6 +17,7 @@ export function LobbyView({ onJoined }: Props) {
   const [smallBlind, setSmallBlind] = useState(10)
   const [bigBlind, setBigBlind] = useState(20)
   const [startingChips, setStartingChips] = useState(1000)
+  const [showSettings, setShowSettings] = useState(false)
   const nameRef = useRef(name)
   nameRef.current = name
 
@@ -75,99 +76,107 @@ export function LobbyView({ onJoined }: Props) {
           placeholder="Your name"
           value={name}
           maxLength={10}
-          onChange={(e) => setName(e.target.value.slice(0, 10))}
+          onChange={(e) => { const v = e.target.value.slice(0, 10); setName(v); sessionStorage.setItem('poker_player_name', v) }}
           onKeyDown={(e) => { if (e.key === 'Enter' && trimmed) createRoom() }}
         />
       </div>
 
       <div className="room-settings">
-        <h2>Room Settings</h2>
-        <div className="settings-row">
-          <label>Max Players</label>
-          <div className="btn-group">
-            {[2, 3, 4, 5, 6].map((n) => (
-              <button
-                key={n}
-                className={maxSeats === n ? 'active' : ''}
-                onClick={() => setMaxSeats(n)}
-              >{n}</button>
-            ))}
-          </div>
-        </div>
-
-        <div className="settings-row">
-          <label>Turn Timer</label>
-          <div className="btn-group">
-            {[{ label: '15s', ms: 15_000 }, { label: '30s', ms: 30_000 }, { label: '60s', ms: 60_000 }, { label: 'Off', ms: 0 }].map(({ label, ms }) => (
-              <button
-                key={ms}
-                className={turnTimeoutMs === ms ? 'active' : ''}
-                onClick={() => setTurnTimeoutMs(ms)}
-              >{label}</button>
-            ))}
-          </div>
-        </div>
-
-        <div className="settings-row">
-          <label>Small Blind</label>
-          <input
-            type="number"
-            className="settings-num"
-            value={smallBlind}
-            min={1}
-            onChange={(e) => setSmallBlind(Number(e.target.value))}
-          />
-        </div>
-
-        <div className="settings-row">
-          <label>Big Blind</label>
-          <input
-            type="number"
-            className="settings-num"
-            value={bigBlind}
-            min={1}
-            onChange={(e) => setBigBlind(Number(e.target.value))}
-          />
-        </div>
-
-        <div className="settings-row">
-          <label>Starting Chips</label>
-          <input
-            type="number"
-            className="settings-num"
-            value={startingChips}
-            min={100}
-            step={100}
-            onChange={(e) => setStartingChips(Number(e.target.value))}
-          />
-        </div>
-
-        <div className="settings-row">
-          <label>Room Name</label>
-          <input
-            type="text"
-            className="settings-text"
-            placeholder={trimmed ? `${trimmed}'s Room` : ''}
-            value={roomName}
-            maxLength={24}
-            onChange={(e) => setRoomName(e.target.value.slice(0, 24))}
-          />
-        </div>
-      </div>
-
-      <div className="lobby-actions">
-        <button
-          className="btn-primary"
-          disabled={!trimmed || !connected}
-          onClick={createRoom}
-        >
-          + Create Room
+        <button className="settings-toggle" onClick={() => setShowSettings(s => !s)}>
+          <span className="settings-toggle-icon">{showSettings ? '▼' : '▶'}</span>
+          Create Room
         </button>
+        {showSettings && (
+          <>
+            <div className="settings-row">
+              <label>Max Players</label>
+              <div className="btn-group">
+                {[2, 3, 4, 5, 6].map((n) => (
+                  <button
+                    key={n}
+                    className={maxSeats === n ? 'active' : ''}
+                    onClick={() => setMaxSeats(n)}
+                  >{n}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-row">
+              <label>Turn Timer</label>
+              <div className="btn-group">
+                {[{ label: '15s', ms: 15_000 }, { label: '30s', ms: 30_000 }, { label: '60s', ms: 60_000 }, { label: 'Off', ms: 0 }].map(({ label, ms }) => (
+                  <button
+                    key={ms}
+                    className={turnTimeoutMs === ms ? 'active' : ''}
+                    onClick={() => setTurnTimeoutMs(ms)}
+                  >{label}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-row">
+              <label>Small Blind</label>
+              <input
+                type="number"
+                className="settings-num"
+                value={smallBlind}
+                min={1}
+                onChange={(e) => setSmallBlind(Number(e.target.value))}
+              />
+            </div>
+
+            <div className="settings-row">
+              <label>Big Blind</label>
+              <input
+                type="number"
+                className="settings-num"
+                value={bigBlind}
+                min={1}
+                onChange={(e) => setBigBlind(Number(e.target.value))}
+              />
+            </div>
+
+            <div className="settings-row">
+              <label>Starting Chips</label>
+              <input
+                type="number"
+                className="settings-num"
+                value={startingChips}
+                min={100}
+                step={100}
+                onChange={(e) => setStartingChips(Number(e.target.value))}
+              />
+            </div>
+
+            <div className="settings-row">
+              <label>Room Name</label>
+              <input
+                type="text"
+                className="settings-text"
+                placeholder={trimmed ? `${trimmed}'s Room` : ''}
+                value={roomName}
+                maxLength={24}
+                onChange={(e) => setRoomName(e.target.value.slice(0, 24))}
+              />
+            </div>
+
+            <div className="lobby-actions">
+              <button
+                className="btn-outline"
+                disabled={!trimmed || !connected}
+                onClick={createRoom}
+              >
+                Done
+              </button>
+            </div>
+          </>
+        )}
       </div>
+
       {errorMsg && <div className="error-msg">{errorMsg}</div>}
 
+      <h2 className="rooms-heading">Rooms</h2>
       <div className="room-list">
-        <h2>Rooms</h2>
         {rooms.length === 0 ? (
           <p className="empty">No rooms yet. Create one!</p>
         ) : (
