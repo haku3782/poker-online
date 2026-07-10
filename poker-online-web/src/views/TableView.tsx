@@ -55,14 +55,13 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     return (
       <div className="table">
         <div className="table-header">
-          <span className="header-room">{state.name}</span>
           <button className="btn-leave" onClick={() => socket.emit('leave_room')}>
             Leave
           </button>
         </div>
         <div className="waiting-screen">
           <p className="waiting-title">Waiting for players</p>
-          <p className="waiting-room-id">Room ID: <code>{state.roomId}</code></p>
+          <p className="waiting-room-id">{state.name}</p>
           <p className="waiting-count">
             {state.players.length} / {state.maxSeats} players
           </p>
@@ -108,9 +107,6 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             <span>Chips {state.defaultStartingChips}</span>
             <span>Timer {state.turnTimeoutMs === 0 ? 'Off' : `${state.turnTimeoutMs / 1000}s`}</span>
           </div>
-          {state.players.length < 2 && (
-            <p className="waiting-hint">Share the Room ID with other players to start.</p>
-          )}
         </div>
       </div>
     )
