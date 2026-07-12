@@ -355,18 +355,18 @@ button:not(:disabled):hover { opacity: 0.82; }
 .ready-indicator.ready { color: #60d080; }
 
 .btn-ready {
-  background: #2a8a50;
+  background: transparent;
   color: #fff;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.5);
   width: 100%;
   max-width: 260px;
   line-height: 1;
   height: 2.5rem;
 }
 .btn-ready.active {
-  background: #7a5a00;
-  color: #f0c040;
-  border: none;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.5);
 }
 .waiting-hint {
   font-size: 0.82rem;
@@ -875,8 +875,8 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 
 .btn-start {
-  background: #2a8a50;
-  color: #fff;
+  background: #ffffff;
+  color: #111;
   width: 100%;
   max-width: 260px;
   height: 2.5rem;
