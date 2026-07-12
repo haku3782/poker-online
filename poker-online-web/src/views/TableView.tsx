@@ -15,6 +15,18 @@ export function TableView({ myPlayerId, onLeave }: Props) {
   const [showRaise, setShowRaise] = useState(false)
   const [raiseAmount, setRaiseAmount] = useState(0)
   const [actionTaken, setActionTaken] = useState(false)
+  const [lastActions, setLastActions] = useState<Record<string, { text: string; expiry: number }>>({})
+
+  function actionLabel(action: string, amount?: number): string {
+    switch (action) {
+      case 'fold':  return 'FOLD'
+      case 'call':  return amount != null ? `CALL ${amount}` : 'CALL'
+      case 'check': return 'CHECK'
+      case 'raise': return amount != null ? `RAISE ${amount}` : 'RAISE'
+      case 'allin': return 'ALL-IN'
+      default:      return action.toUpperCase()
+    }
+  }
 
   const handleLeave = useCallback(() => onLeave(), [onLeave])
 
@@ -27,16 +39,32 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     }
     const onError = (e: { message: string }) => setErrorMsg(e.message)
     const onRoomLeft = () => handleLeave()
+    const onActionTaken = ({ playerId, action, amount }: { playerId: string; action: string; amount?: number }) => {
+      const text = actionLabel(action, amount)
+      const expiry = Date.now() + 2000
+      setLastActions(prev => ({ ...prev, [playerId]: { text, expiry } }))
+      setTimeout(() => {
+        setLastActions(prev => {
+          const entry = prev[playerId]
+          if (!entry || entry.expiry !== expiry) return prev
+          const next = { ...prev }
+          delete next[playerId]
+          return next
+        })
+      }, 2000)
+    }
 
     socket.on('game_state', onGameState)
     socket.on('error', onError)
     socket.on('room_left', onRoomLeft)
+    socket.on('action_taken', onActionTaken)
     // Guard against the race where game_state fires before this effect runs
     socket.emit('request_game_state')
     return () => {
       socket.off('game_state', onGameState)
       socket.off('error', onError)
       socket.off('room_left', onRoomLeft)
+      socket.off('action_taken', onActionTaken)
     }
   }, [handleLeave])
 
@@ -182,6 +210,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                     compact={true}
                     turnTimeoutMs={state.turnTimeoutMs}
                     timerPosition="top"
+                    lastAction={lastActions[p.id]?.text}
                   />
                 )}
               </div>
@@ -201,6 +230,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 compact={true}
                 turnTimeoutMs={state.turnTimeoutMs}
                 timerPosition="left"
+                lastAction={lastActions[sideLeft.id]?.text}
               />
             )}
           </div>
@@ -272,6 +302,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 compact={true}
                 turnTimeoutMs={state.turnTimeoutMs}
                 timerPosition="right"
+                lastAction={lastActions[sideRight.id]?.text}
               />
             )}
           </div>
@@ -289,6 +320,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 compact={true}
                 turnTimeoutMs={state.turnTimeoutMs}
                 timerPosition="inner"
+                lastAction={lastActions[me.id]?.text}
               />
             </div>
           )}

@@ -714,6 +714,17 @@ button:not(:disabled):hover { opacity: 0.82; }
   font-weight: 700;
 }
 
+.action-notif {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .dealer-btn {
   position: absolute;
   display: inline-flex;

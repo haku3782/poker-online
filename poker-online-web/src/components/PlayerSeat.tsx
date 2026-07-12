@@ -9,9 +9,10 @@ interface Props {
   compact?: boolean
   turnTimeoutMs?: number
   timerPosition?: 'top' | 'left' | 'right' | 'inner'
+  lastAction?: string
 }
 
-export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTimeoutMs, timerPosition }: Props) {
+export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTimeoutMs, timerPosition, lastAction }: Props) {
   const classes = [
     'player-seat',
     compact && 'compact',
@@ -61,12 +62,14 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTime
           )}
         </div>
         <div className="seat-row">
-          {badge && (
-            <span className={`badge ${badge.cls}`}>{badge.text}</span>
-          )}
-          {!badge && player.handRank && (
-            <span className="hand-rank">{player.handRank}</span>
-          )}
+          {lastAction
+            ? <span className="action-notif">{lastAction}</span>
+            : badge
+            ? <span className={`badge ${badge.cls}`}>{badge.text}</span>
+            : player.handRank
+            ? <span className="hand-rank">{player.handRank}</span>
+            : null
+          }
         </div>
         {!isMe && (
           <div className="seat-row seat-row-dealer">

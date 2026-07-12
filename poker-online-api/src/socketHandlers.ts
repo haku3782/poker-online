@@ -285,8 +285,21 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
       if (!info) throw new Error('Not in a room')
       const room = manager.getRoom(info.roomId)
       if (!room) throw new Error('Room not found')
+
+      const player = room.slots.find(p => p?.id === info.playerId)
+      const callAmount = type === 'call' && player
+        ? Math.min(room.currentBetLevel - player.currentBet, player.chips)
+        : undefined
+
       clearTurnTimer(info.roomId)
       applyAction(room, info.playerId, { type, amount })
+
+      io.to(info.roomId).emit('action_taken', {
+        playerId: info.playerId,
+        action: type,
+        amount: type === 'raise' ? amount : type === 'call' ? callAmount : undefined,
+      })
+
       broadcastGameState(io, info.roomId, manager)
       if (room.bettingRound === 'showdown') {
         setNextHandTimer(io, info.roomId, manager)
