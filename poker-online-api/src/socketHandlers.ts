@@ -17,7 +17,7 @@ import {
 const turnTimers = new Map<string, ReturnType<typeof setTimeout>>()
 const nextHandTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
-const NEXT_HAND_DELAY_MS = 3000
+const NEXT_HAND_DELAY_MS = 5000
 
 function clearTurnTimer(roomId: string): void {
   const t = turnTimers.get(roomId)

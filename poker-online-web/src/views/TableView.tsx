@@ -206,7 +206,24 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           </div>
 
           <div className="felt-community">
-            <span className="community-label">{state.bettingRound.toUpperCase()}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span className="community-label">{state.bettingRound.toUpperCase()}</span>
+              {canStart && (
+                <svg width="16" height="16" viewBox="0 0 16 16" style={{ transform: 'rotate(-90deg) scaleX(-1)', flexShrink: 0 }}>
+                  <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2"/>
+                  <circle
+                    key={state.autoStartAt}
+                    className="ring-fill"
+                    cx="8" cy="8" r="6"
+                    fill="none"
+                    stroke="var(--gold)"
+                    strokeWidth="2"
+                    strokeDasharray="37.7"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+            </div>
             <div className="community-cards">
               {[0, 1, 2, 3, 4].map((i) =>
                 state.communityCards[i] ? (
@@ -280,25 +297,6 @@ export function TableView({ myPlayerId, onLeave }: Props) {
 
       {/* Actions — inside table rim */}
       <div className="actions">
-        {canStart && (
-          <div className="next-hand-countdown">
-            <div className="countdown-ring">
-              <svg width="48" height="48" viewBox="0 0 48 48">
-                <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="3"/>
-                <circle
-                  key={state.autoStartAt}
-                  className="ring-fill"
-                  cx="24" cy="24" r="18"
-                  fill="none"
-                  stroke="var(--gold)"
-                  strokeWidth="3"
-                  strokeDasharray="113.1"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-          </div>
-        )}
 
         {me && me.chips === 0 && (
           <button className="btn-rebuy" onClick={() => socket.emit('rebuy')}>

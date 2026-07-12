@@ -722,8 +722,10 @@ button:not(:disabled):hover { opacity: 0.82; }
   width: 1.2rem;
   height: 1.2rem;
   border-radius: 50%;
-  background: #111;
-  color: #fff;
+  background: linear-gradient(145deg, #3a3a3a, #111);
+  color: #ddd;
+  border: 1px solid #555;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
   font-size: 0.65rem;
   font-weight: 700;
   z-index: 1;
@@ -908,10 +910,6 @@ button:not(:disabled):hover { opacity: 0.82; }
 .btn-cancel        { background: #333; color: #aaa; }
 .btn-rebuy         { background: #1a3a6a; color: #adf; width: 100%; }
 
-.next-hand-countdown { display: flex; flex-direction: column; align-items: center; padding: 0.25rem 0; }
-.countdown-ring { position: relative; width: 48px; height: 48px; }
-.countdown-ring svg { transform: rotate(-90deg); }
-@keyframes ring-drain { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 113.1; } }
-.ring-fill { animation: ring-drain 3s linear forwards; }
-.ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 600; color: var(--gold); }
+@keyframes ring-drain { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 37.7; } }
+.ring-fill { animation: ring-drain 5s linear forwards; }
 
