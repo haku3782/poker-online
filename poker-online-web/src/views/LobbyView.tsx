@@ -189,7 +189,7 @@ export function LobbyView({ onJoined }: Props) {
                 <span className={`status ${room.status}`}>{room.status}</span>
               </div>
               <button
-                className={`btn-join${room.playerCount >= room.maxSeats ? ' full' : ''}`}
+                className={`btn-join${room.playerCount >= room.maxSeats ? ' full' : room.status === 'playing' ? ' spectate' : ''}`}
                 disabled={!trimmed || !connected || room.playerCount >= room.maxSeats}
                 onClick={() => { setErrorMsg(''); socket.emit('join_room', { roomId: room.id, playerName: trimmed }) }}
               >
