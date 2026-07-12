@@ -57,7 +57,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
   if (state.status === 'waiting') {
     const me = players.find((p) => p.id === myPlayerId)
     return (
-      <div className="table">
+      <div className="lobby-bg">
         <div className="table-header">
           <button className="btn-leave" onClick={() => socket.emit('leave_room')}>
             Leave
@@ -73,8 +73,9 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             {players.map((p) => (
               <li key={p.id} className={p.id === myPlayerId ? 'me' : ''}>
                 <span className="waiting-player-name">
-                  {p.name}{p.id === myPlayerId ? ' (You)' : ''}
-                  {p.id === state.ownerId && <span className="owner-badge">HOST</span>}
+                  {p.name}
+                  {p.id === myPlayerId && <span className="player-badge">You</span>}
+                  {p.id === state.ownerId && <span className="player-badge">HOST</span>}
                 </span>
                 {p.id !== state.ownerId && (
                   <span className={`ready-indicator ${p.isReady ? 'ready' : ''}`}>

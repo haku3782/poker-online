@@ -289,15 +289,15 @@ button:not(:disabled):hover { opacity: 0.82; }
 .waiting-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--gold);
+  color: #ffffff;
 }
 .waiting-sub {
-  color: #667;
+  color: #bbb;
   font-size: 0.9rem;
 }
 .waiting-room-id {
   font-size: 0.85rem;
-  color: #aaa;
+  color: #bbb;
 }
 .waiting-room-id code {
   display: block;
@@ -312,7 +312,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 .waiting-count {
   font-size: 0.9rem;
-  color: #60d080;
+  color: #bbb;
   font-weight: 600;
 }
 .waiting-player-list {
@@ -333,22 +333,19 @@ button:not(:disabled):hover { opacity: 0.82; }
   font-size: 0.88rem;
   color: #ccc;
 }
-.waiting-player-list li.me {
-  background: rgba(240,192,64,0.1);
-  color: var(--gold);
-}
 .waiting-player-name {
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
-.owner-badge {
+.player-badge {
   font-size: 0.65rem;
   padding: 0.1rem 0.35rem;
   border-radius: 3px;
-  background: #5a3a0a;
-  color: var(--gold);
-  font-weight: 700;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
 }
 .ready-indicator {
   font-size: 0.75rem;
