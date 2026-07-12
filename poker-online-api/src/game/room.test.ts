@@ -7,7 +7,7 @@ describe('RoomManager', () => {
     const room = manager.createRoom()
     expect(room.maxSeats).toBe(6)
     expect(room.status).toBe('waiting')
-    expect(room.players).toEqual([])
+    expect(room.slots).toEqual(Array(6).fill(null))
   })
 
   it('assigns the lowest free seat on join', () => {
@@ -17,7 +17,7 @@ describe('RoomManager', () => {
     const bob = manager.joinRoom(room.id, 'Bob')
     expect(alice.seat).toBe(0)
     expect(bob.seat).toBe(1)
-    expect(manager.getRoom(room.id)?.players).toHaveLength(2)
+    expect(manager.getRoom(room.id)?.slots.filter(Boolean)).toHaveLength(2)
   })
 
   it('refuses to join a full room', () => {
@@ -34,7 +34,7 @@ describe('RoomManager', () => {
     manager.joinRoom(room.id, 'Alice')
     const summaries = manager.listRooms()
     expect(summaries).toEqual([
-      { id: room.id, playerCount: 1, maxSeats: 6, status: 'waiting' }
+      { id: room.id, name: 'Room', playerCount: 1, maxSeats: 6, status: 'waiting' }
     ])
   })
 
@@ -52,6 +52,6 @@ describe('RoomManager', () => {
     const alice = manager.joinRoom(room.id, 'Alice')
     manager.joinRoom(room.id, 'Bob')
     manager.leaveRoom(room.id, alice.id)
-    expect(manager.getRoom(room.id)?.players).toHaveLength(1)
+    expect(manager.getRoom(room.id)?.slots.filter(Boolean)).toHaveLength(1)
   })
 })

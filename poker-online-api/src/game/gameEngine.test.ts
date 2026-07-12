@@ -5,7 +5,7 @@ import type { Room } from './room.js'
 
 function checkOrCallForCurrentPlayer(room: Room): void {
   const playerId = room.currentTurnPlayerId!
-  const player = room.players.find((p) => p.id === playerId)!
+  const player = room.slots.find((p) => p?.id === playerId)!
   const action = player.currentBet === room.currentBetLevel ? { type: 'check' as const } : { type: 'call' as const }
   applyAction(room, playerId, action)
 }
