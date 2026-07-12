@@ -228,7 +228,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                   const names = pot.winnerIds
                     .map((id) => state.slots.find((p) => p?.id === id)?.name ?? id)
                     .join(', ')
-                  return <div key={i}>🏆 {names} wins {pot.amount} chips</div>
+                  return <div key={i}>{names} wins {pot.amount} chips</div>
                 })}
               </div>
             )}
@@ -239,7 +239,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             )}
             {state.status === 'playing' && !isShowdown && !me?.isSpectating && (
               <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
-                {isMyTurn ? '🎯 Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
+                {isMyTurn ? 'Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
               </div>
             )}
             {errorMsg && <div className="error-msg">{errorMsg}</div>}

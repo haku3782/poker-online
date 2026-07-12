@@ -823,10 +823,6 @@ button:not(:disabled):hover { opacity: 0.82; }
 
 /* Hand result */
 .hand-result {
-  padding: 0.5rem 0.8rem;
-  background: rgba(240,192,64,0.12);
-  border: 1px solid var(--gold);
-  border-radius: 8px;
   color: var(--gold);
   font-weight: 600;
   text-align: center;
