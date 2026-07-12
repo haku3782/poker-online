@@ -62,6 +62,7 @@ export function LobbyView({ onJoined }: Props) {
   }
 
   return (
+    <div className="lobby-bg">
     <div className="lobby">
       <h1>♠ Poker Online</h1>
 
@@ -198,6 +199,7 @@ export function LobbyView({ onJoined }: Props) {
           ))
         )}
       </div>
+    </div>
     </div>
   )
 }
