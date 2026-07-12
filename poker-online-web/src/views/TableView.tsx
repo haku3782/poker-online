@@ -74,7 +74,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
               <li key={p.id} className={p.id === myPlayerId ? 'me' : ''}>
                 <span className="waiting-player-name">
                   {p.name}
-                  {p.id === myPlayerId && <span className="player-badge">You</span>}
+                  {p.id === myPlayerId && <span className="player-badge">YOU</span>}
                   {p.id === state.ownerId && <span className="player-badge">HOST</span>}
                 </span>
                 {p.id !== state.ownerId && (

@@ -98,7 +98,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   color: #e8e8e8;
   outline: none;
 }
-.name-input input:focus { border-color: var(--gold); }
+.name-input input:focus { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 2px rgba(255,255,255,0.15); }
 .name-input input::placeholder { color: #556; }
 
 .lobby-actions {
@@ -237,9 +237,9 @@ button:not(:disabled):hover { opacity: 0.82; }
   outline: none;
 }
 
-.settings-num:focus { border-color: var(--gold); }
+.settings-num:focus { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 2px rgba(255,255,255,0.15); }
 .settings-text { width: 100%; max-width: 200px; padding: 0.3rem 0.6rem; border-radius: 5px; border: 1px solid rgba(255,255,255,0.4); background: transparent; color: #e8e8e8; font-size: 0.85rem; outline: none; }
-.settings-text:focus { border-color: var(--gold); }
+.settings-text:focus { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 2px rgba(255,255,255,0.15); }
 
 /* Waiting rules row */
 .waiting-rules {
