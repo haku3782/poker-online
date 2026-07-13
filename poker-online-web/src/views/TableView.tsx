@@ -94,6 +94,11 @@ export function TableView({ myPlayerId, onLeave }: Props) {
         <div className="waiting-screen">
           <p className="waiting-title">Waiting for players</p>
           <p className="waiting-room-id">{state.name}</p>
+          <div className="waiting-rules">
+            <span>SB {state.smallBlind} / BB {state.bigBlind}</span>
+            <span>Chips {state.defaultStartingChips}</span>
+            <span>Timer {state.turnTimeoutMs === 0 ? 'Off' : `${state.turnTimeoutMs / 1000}s`}</span>
+          </div>
           <p className="waiting-count">
             {players.length} / {state.maxSeats} players
           </p>
@@ -114,28 +119,25 @@ export function TableView({ myPlayerId, onLeave }: Props) {
             ))}
           </ul>
 
-          {myPlayerId !== state.ownerId && me && (
-            <button
-              className={`btn-ready ${me.isReady ? 'active' : ''}`}
-              onClick={() => socket.emit('set_ready')}
-            >
-              {me.isReady ? 'Ready ✓' : 'Ready?'}
-            </button>
-          )}
+          <div className="waiting-bottom">
+            {myPlayerId !== state.ownerId && me && (
+              <button
+                className={`btn-ready ${me.isReady ? 'active' : ''}`}
+                onClick={() => socket.emit('set_ready')}
+              >
+                {me.isReady ? 'Ready ✓' : 'Ready?'}
+              </button>
+            )}
 
-          {myPlayerId === state.ownerId && players.length >= 2 && (
-            <button
-              className="btn-start"
-              disabled={!players.some(p => p.id !== myPlayerId && p.isReady)}
-              onClick={() => socket.emit('start_game')}
-            >
-              ▶ Start Game
-            </button>
-          )}
-          <div className="waiting-rules">
-            <span>SB {state.smallBlind} / BB {state.bigBlind}</span>
-            <span>Chips {state.defaultStartingChips}</span>
-            <span>Timer {state.turnTimeoutMs === 0 ? 'Off' : `${state.turnTimeoutMs / 1000}s`}</span>
+            {myPlayerId === state.ownerId && players.length >= 2 && (
+              <button
+                className="btn-start"
+                disabled={!players.some(p => p.id !== myPlayerId && p.isReady)}
+                onClick={() => socket.emit('start_game')}
+              >
+                ▶ Start Game
+              </button>
+            )}
           </div>
         </div>
       </div>
