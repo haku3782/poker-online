@@ -834,6 +834,14 @@ button:not(:disabled):hover { opacity: 0.82; }
 .community-cards { display: flex; gap: 0.25rem; }
 .community-bet   { font-size: 0.8rem; color: rgba(255,255,255,0.55); }
 
+/* Status area (hand result / turn indicator / spectating) */
+.community-status {
+  min-height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Hand result */
 .hand-result {
   color: var(--gold);

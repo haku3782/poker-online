@@ -238,21 +238,19 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           <div className="felt-community">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <span className="community-label">{state.bettingRound.toUpperCase()}</span>
-              {canStart && (
-                <svg width="16" height="16" viewBox="0 0 16 16" style={{ transform: 'rotate(-90deg) scaleX(-1)', flexShrink: 0 }}>
-                  <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2"/>
-                  <circle
-                    key={state.autoStartAt}
-                    className="ring-fill"
-                    cx="8" cy="8" r="6"
-                    fill="none"
-                    stroke="var(--gold)"
-                    strokeWidth="2"
-                    strokeDasharray="37.7"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              )}
+              <svg width="16" height="16" viewBox="0 0 16 16" style={{ transform: 'rotate(-90deg) scaleX(-1)', flexShrink: 0, visibility: canStart ? 'visible' : 'hidden' }}>
+                <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2"/>
+                <circle
+                  key={state.autoStartAt}
+                  className="ring-fill"
+                  cx="8" cy="8" r="6"
+                  fill="none"
+                  stroke="var(--gold)"
+                  strokeWidth="2"
+                  strokeDasharray="37.7"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
             <div className="community-cards">
               {[0, 1, 2, 3, 4].map((i) =>
@@ -269,26 +267,25 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 Bet: {state.currentBetLevel}
               </span>
             </div>
-            {isShowdown && state.lastHandResult && (
-              <div className="hand-result">
-                {state.lastHandResult.pots.map((pot, i) => {
-                  const names = pot.winnerIds
-                    .map((id) => state.slots.find((p) => p?.id === id)?.name ?? id)
-                    .join(', ')
-                  return <div key={i}>{names} wins {pot.amount} chips</div>
-                })}
-              </div>
-            )}
-            {me?.isSpectating && (
-              <div className="spectating-banner">
-                Watching
-              </div>
-            )}
-            {state.status === 'playing' && !isShowdown && !me?.isSpectating && (
-              <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
-                {isMyTurn ? 'Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
-              </div>
-            )}
+            <div className="community-status">
+              {isShowdown && state.lastHandResult
+                ? <div className="hand-result">
+                    {state.lastHandResult.pots.map((pot, i) => {
+                      const names = pot.winnerIds
+                        .map((id) => state.slots.find((p) => p?.id === id)?.name ?? id)
+                        .join(', ')
+                      return <div key={i}>{names} wins {pot.amount} chips</div>
+                    })}
+                  </div>
+                : me?.isSpectating
+                ? <div className="spectating-banner">Watching</div>
+                : state.status === 'playing' && !me?.isSpectating
+                ? <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
+                    {isMyTurn ? 'Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
+                  </div>
+                : null
+              }
+            </div>
             {errorMsg && <div className="error-msg">{errorMsg}</div>}
           </div>
 
@@ -336,28 +333,32 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           </button>
         )}
 
-        {canSeeButtons && (
-          <div className="action-buttons">
-            <button className="btn-allin" disabled={!canAct} onClick={() => act('allin')}>
-              All-in
+        <div
+          className="action-buttons"
+          style={{
+            visibility: canSeeButtons ? 'visible' : 'hidden',
+            pointerEvents: canSeeButtons ? 'auto' : 'none',
+          }}
+        >
+          <button className="btn-allin" disabled={!canAct} onClick={() => act('allin')}>
+            All-in
+          </button>
+          <button className="btn-raise" disabled={!canAct || !(me && me.chips > callAmount)} onClick={openRaise}>
+            Raise
+          </button>
+          <button className="btn-fold" disabled={!canAct} onClick={() => act('fold')}>
+            Fold
+          </button>
+          {canCheck ? (
+            <button className="btn-check" disabled={!canAct} onClick={() => act('check')}>
+              Check
             </button>
-            <button className="btn-raise" disabled={!canAct || !(me && me.chips > callAmount)} onClick={openRaise}>
-              Raise
+          ) : (
+            <button className="btn-call" disabled={!canAct} onClick={() => act('call')}>
+              Call
             </button>
-            <button className="btn-fold" disabled={!canAct} onClick={() => act('fold')}>
-              Fold
-            </button>
-            {canCheck ? (
-              <button className="btn-check" disabled={!canAct} onClick={() => act('check')}>
-                Check
-              </button>
-            ) : (
-              <button className="btn-call" disabled={!canAct} onClick={() => act('call')}>
-                Call
-              </button>
-            )}
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="raise-panel" style={{ visibility: showRaise ? 'visible' : 'hidden' }}>
           <input
