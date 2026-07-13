@@ -238,11 +238,14 @@ export function TableView({ myPlayerId, onLeave }: Props) {
           <div className="felt-community">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <span className="community-label">{state.bettingRound.toUpperCase()}</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" style={{ transform: 'rotate(-90deg) scaleX(-1)', flexShrink: 0, visibility: canStart ? 'visible' : 'hidden' }}>
+              <svg
+                key={state.autoStartAt ?? 0}
+                width="16" height="16" viewBox="0 0 16 16"
+                style={{ transform: 'rotate(-90deg) scaleX(-1)', flexShrink: 0, visibility: canStart ? 'visible' : 'hidden' }}
+              >
                 <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2"/>
                 <circle
-                  key={state.autoStartAt}
-                  className="ring-fill"
+                  className={canStart ? 'ring-fill' : ''}
                   cx="8" cy="8" r="6"
                   fill="none"
                   stroke="var(--gold)"
