@@ -159,6 +159,9 @@ export function TableView({ myPlayerId, onLeave }: Props) {
 
   const isShowdown = state.bettingRound === 'showdown'
   const canStart = state.bettingRound === 'showdown' && players.length >= 2
+  const winnerIds = isShowdown && state.lastHandResult
+    ? new Set(state.lastHandResult.pots.flatMap(pot => pot.winnerIds))
+    : new Set<string>()
   const canSeeButtons = !!me && !me.isAllIn && !me.isSpectating && state.status === 'playing' && !isShowdown
 
   function act(type: string, amount?: number) {
@@ -213,6 +216,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                     turnTimeoutMs={state.turnTimeoutMs}
                     timerPosition="top"
                     lastAction={lastActions[p.id]?.text}
+                    isWinner={winnerIds.has(p.id)}
                   />
                 )}
               </div>
@@ -233,17 +237,18 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 turnTimeoutMs={state.turnTimeoutMs}
                 timerPosition="left"
                 lastAction={lastActions[sideLeft.id]?.text}
+                isWinner={winnerIds.has(sideLeft.id)}
               />
             )}
           </div>
 
           <div className="felt-community">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
               <span className="community-label">{state.bettingRound.toUpperCase()}</span>
               <svg
                 key={state.autoStartAt ?? 0}
                 width="16" height="16" viewBox="0 0 16 16"
-                style={{ transform: 'rotate(-90deg) scaleX(-1)', flexShrink: 0, visibility: canStart ? 'visible' : 'hidden' }}
+                style={{ position: 'absolute', left: '100%', marginLeft: '0.4rem', transform: 'rotate(-90deg) scaleX(-1)', visibility: canStart ? 'visible' : 'hidden' }}
               >
                 <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2"/>
                 <circle
@@ -305,6 +310,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 turnTimeoutMs={state.turnTimeoutMs}
                 timerPosition="right"
                 lastAction={lastActions[sideRight.id]?.text}
+                isWinner={winnerIds.has(sideRight.id)}
               />
             )}
           </div>
@@ -323,6 +329,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                 turnTimeoutMs={state.turnTimeoutMs}
                 timerPosition="inner"
                 lastAction={lastActions[me.id]?.text}
+                isWinner={winnerIds.has(me.id)}
               />
             </div>
           )}

@@ -24,7 +24,7 @@ html {
 
 body {
   background-color: var(--felt-dark);
-  color: #e8e8e8;
+  color: #e0e0e0;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
@@ -257,7 +257,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   width: 100%;
   height: 100%;
   overflow: hidden;
-  padding: 1rem 1rem 1.5rem;
+  padding: 0.5rem 1rem 1.5rem;
   max-width: 580px;
   margin: 0 auto;
   gap: 0.6rem;
@@ -348,7 +348,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   gap: 0.4rem;
 }
 .player-badge {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   padding: 0.1rem 0.35rem;
   border-radius: 3px;
   background: transparent;
@@ -388,19 +388,19 @@ button:not(:disabled):hover { opacity: 0.82; }
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0 0.75rem 0.4rem;
   background: transparent;
   border-radius: 8px;
   flex-shrink: 0;
 }
 
-.header-room { color: #fff; font-size: 0.78rem; }
+.header-room { color: rgba(255,255,255,0.45); font-size: 0.78rem; }
 .header-pot  { flex: 1; text-align: center; font-weight: 700; color: var(--gold); }
 
 .btn-leave {
   background: none;
   border: 1px solid #aaa;
-  color: #fff;
+  color: #e0e0e0;
   padding: 0.25rem 0.65rem;
   font-size: 0.8rem;
   margin-left: auto;
@@ -513,14 +513,14 @@ button:not(:disabled):hover { opacity: 0.82; }
 .felt-side .seat-info { gap: 0.08rem; }
 .felt-side .seat-row { flex-direction: row; gap: 0.2rem; min-height: 0; flex-wrap: nowrap; }
 .felt-side .seat-name { }
-.felt-side .seat-chips { font-size: 0.65rem; }
+.felt-side .seat-chips { font-size: 0.75rem; }
 
 @media (min-width: 430px) {
   .felt-side { width: 6.0rem; }
   /* Wide screens: restore horizontal layout for side seats */
   .felt-side .seat-row { flex-direction: row; gap: 0.4rem; min-height: 1.1rem; }
   .felt-side .seat-name { }
-  .felt-side .seat-chips { font-size: 0.72rem; }
+  .felt-side .seat-chips { font-size: 0.75rem; }
   .felt-side .seat-bet { display: inline; }
 }
 @media (min-width: 580px) {
@@ -676,6 +676,9 @@ button:not(:disabled):hover { opacity: 0.82; }
   animation: none;
 }
 .player-seat.me     { background: transparent; }
+.player-seat.winner {
+  box-shadow: 0 0 24px rgba(240, 192, 64, 0.6), inset 0 0 12px rgba(240, 192, 64, 0.15);
+}
 
 .player-seat.compact {
   height: 4rem;
@@ -693,7 +696,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 .seat-cards { display: flex; gap: 0.2rem; flex-wrap: wrap; justify-content: center; }
 
 .hand-rank {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   padding: 0.1rem 0.35rem;
   font-weight: 700;
   color: var(--gold);
@@ -719,22 +722,22 @@ button:not(:disabled):hover { opacity: 0.82; }
 .seat-name   { font-weight: 600; word-break: break-word; font-size: 0.78rem; }
 .seat-chips  { color: #60d080; white-space: nowrap; }
 .seat-bet    { color: var(--gold); white-space: nowrap; }
-.seat-rebuy  { font-size: 0.65rem; color: #778; white-space: nowrap; }
+.seat-rebuy  { font-size: 0.75rem; color: rgba(255,255,255,0.25); white-space: nowrap; }
 
 .badge {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   padding: 0.1rem 0.35rem;
   border-radius: 3px;
   font-weight: 700;
 }
 
 .action-notif {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   padding: 0.1rem 0.35rem;
   border-radius: 3px;
   background: transparent;
   border: 1px solid rgba(255,255,255,0.4);
-  color: rgba(255,255,255,0.85);
+  color: #e0e0e0;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -748,10 +751,10 @@ button:not(:disabled):hover { opacity: 0.82; }
   height: 1.2rem;
   border-radius: 50%;
   background: linear-gradient(145deg, #3a3a3a, #111);
-  color: #ddd;
+  color: rgba(255,255,255,0.25);
   border: 1px solid #555;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   z-index: 1;
   /* デフォルト: 上の相手 → シート下端中央（コミュニティ側） */
@@ -789,10 +792,10 @@ button:not(:disabled):hover { opacity: 0.82; }
 
 .my-area .player-seat.compact { width: 8rem; }
 .my-area .seat-row-dealer { min-height: 1.4rem; transform: translateY(-0.8rem); }
-.seat-rebuy { font-size: 0.65rem; color: #aaa; margin-left: 0.3rem; }
-.badge.allin           { background: #903010; color: #fcc; }
-.badge.folded-badge    { background: #333; color: #888; }
-.badge.spectating-badge { background: #1a3060; color: #88c; }
+.seat-rebuy { font-size: 0.75rem; color: rgba(255,255,255,0.25); margin-left: 0.3rem; }
+.badge.allin           { background: #903010; color: #f99; }
+.badge.folded-badge    { background: #333; color: #666; }
+.badge.spectating-badge { background: #1a3060; color: #99b; }
 
 .player-seat.spectating { opacity: 0.55; }
 
@@ -844,9 +847,9 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 
 /* Community (inside felt-community) */
-.community-label { font-size: 0.7rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.45); }
+.community-label { font-size: 0.75rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.45); }
 .community-cards { display: flex; gap: 0.25rem; }
-.community-bet   { font-size: 0.8rem; color: rgba(255,255,255,0.55); }
+.community-bet   { font-size: 0.8rem; color: var(--gold); }
 
 /* Status area (hand result / turn indicator / spectating) */
 .community-status {
@@ -866,7 +869,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 
 /* Turn indicator */
-.turn-indicator { text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.55); padding: 0.2rem; }
+.turn-indicator { text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.45); padding: 0.2rem; }
 .turn-indicator.my-turn { color: var(--gold); font-weight: 600; }
 
 /* My area */
@@ -916,11 +919,11 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 .action-buttons button { flex: 1; min-width: 0; white-space: nowrap; }
 
-.btn-fold  { background: transparent; border: 1px solid rgba(232,232,232,0.5); color: #e8e8e8; }
-.btn-check { background: transparent; border: 1px solid rgba(232,232,232,0.5); color: #e8e8e8; }
-.btn-call  { background: transparent; border: 1px solid rgba(232,232,232,0.5); color: #e8e8e8; }
-.btn-raise { background: transparent; border: 1px solid rgba(232,232,232,0.5); color: #e8e8e8; }
-.btn-allin { background: transparent; border: 1px solid rgba(232,232,232,0.5); color: #e8e8e8; }
+.btn-fold  { background: transparent; border: 1px solid rgba(224,224,224,0.4); color: #e0e0e0; }
+.btn-check { background: transparent; border: 1px solid rgba(224,224,224,0.4); color: #e0e0e0; }
+.btn-call  { background: transparent; border: 1px solid rgba(224,224,224,0.4); color: #e0e0e0; }
+.btn-raise { background: transparent; border: 1px solid rgba(224,224,224,0.4); color: #e0e0e0; }
+.btn-allin { background: transparent; border: 1px solid rgba(224,224,224,0.4); color: #e0e0e0; }
 
 .raise-panel {
   display: flex;
@@ -939,9 +942,9 @@ button:not(:disabled):hover { opacity: 0.82; }
 }
 .raise-panel input:focus { border-color: var(--gold); }
 
-.btn-confirm-raise { background: #3a7a2a; color: #cfc; }
-.btn-cancel        { background: #333; color: #aaa; }
-.btn-rebuy         { background: #1a3a6a; color: #adf; width: 100%; }
+.btn-confirm-raise { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+.btn-cancel        { background: transparent; border: 1px solid rgba(232,232,232,0.3); color: #888; }
+.btn-rebuy         { background: #1a3a6a; color: #e0e0e0; width: 100%; }
 
 @keyframes ring-drain { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 37.7; } }
 .ring-fill { animation: ring-drain 5s linear forwards; }

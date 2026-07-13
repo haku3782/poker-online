@@ -10,9 +10,10 @@ interface Props {
   turnTimeoutMs?: number
   timerPosition?: 'top' | 'left' | 'right' | 'inner'
   lastAction?: string
+  isWinner?: boolean
 }
 
-export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTimeoutMs, timerPosition, lastAction }: Props) {
+export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTimeoutMs, timerPosition, lastAction, isWinner }: Props) {
   const classes = [
     'player-seat',
     compact && 'compact',
@@ -21,6 +22,7 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTime
     player.isSpectating && 'spectating',
     isMe && 'me',
     isDealer && 'dealer',
+    isWinner && 'winner',
   ].filter(Boolean).join(' ')
 
   const badge = player.isSpectating
