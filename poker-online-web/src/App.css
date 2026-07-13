@@ -527,6 +527,7 @@ button:not(:disabled):hover { opacity: 0.82; }
   .felt-side { width: 6.5rem; }
 
 }
+.seat-row.seat-row-status { min-height: 1.2rem; }
 
 /* Community cards in center */
 .felt-community {
@@ -736,7 +737,6 @@ button:not(:disabled):hover { opacity: 0.82; }
   padding: 0.1rem 0.35rem;
   border-radius: 3px;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.4);
   color: #e0e0e0;
   font-weight: 600;
   white-space: nowrap;

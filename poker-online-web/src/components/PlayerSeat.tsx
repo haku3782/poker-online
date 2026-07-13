@@ -63,7 +63,7 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTime
             <span className="seat-bet">Bet: {player.currentBet}</span>
           )}
         </div>
-        <div className="seat-row">
+        <div className="seat-row seat-row-status">
           {lastAction
             ? <span className="action-notif">{lastAction}</span>
             : badge
