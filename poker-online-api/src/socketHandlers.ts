@@ -233,6 +233,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
       const player = room.slots.find((p) => p?.id === info.playerId)
       if (!player) throw new Error('Player not found')
       if (player.chips > 0) throw new Error('Cannot rebuy with chips remaining')
+      if (room.status === 'playing' && room.bettingRound !== 'showdown') throw new Error('Cannot rebuy during a hand')
       player.chips = room.defaultStartingChips
       player.rebuyCount++
       if (room.bettingRound === 'showdown') setNextHandTimer(io, info.roomId, manager)

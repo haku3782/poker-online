@@ -945,7 +945,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 
 .btn-confirm-raise { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
 .btn-cancel        { background: transparent; border: 1px solid rgba(232,232,232,0.3); color: #888; }
-.btn-rebuy         { background: #1a3a6a; color: #e0e0e0; width: 100%; }
+.btn-rebuy         { background: transparent; border: 1px solid #8b2020; color: #c04040; width: 100%; }
 
 @keyframes ring-drain { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 37.7; } }
 .ring-fill { animation: ring-drain 5s linear forwards; }
