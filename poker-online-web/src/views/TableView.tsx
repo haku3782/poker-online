@@ -159,7 +159,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
 
   const isShowdown = state.bettingRound === 'showdown'
   const canStart = state.bettingRound === 'showdown' && players.length >= 2
-  const winnerIds = isShowdown && state.lastHandResult
+const winnerIds = isShowdown && state.lastHandResult
     ? new Set(state.lastHandResult.pots.flatMap(pot => pot.winnerIds))
     : new Set<string>()
   const canSeeButtons = !!me && !me.isAllIn && !me.isSpectating && state.status === 'playing' && !isShowdown
@@ -396,7 +396,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
         </div>
       </div>
 
-      </div>{/* /table-felt */}
+      </div>
     </div>
   )
 }
