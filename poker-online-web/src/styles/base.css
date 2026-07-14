@@ -1,0 +1,42 @@
+:root {
+  --felt: #1a5c35;
+  --felt-dark: #0c0e14;
+  --gold: #f0c040;
+  --card-w: 2.5rem;
+  --card-h: 3.6rem;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  height: 100svh; /* モバイル: ツールバー込みの実際の表示高さに合わせる */
+  min-height: 660px;
+  overflow: hidden;
+}
+html {
+  overflow-y: auto;
+}
+
+body {
+  background-color: var(--felt-dark);
+  color: #e0e0e0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+button {
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+button:active { transform: scale(0.97); }
+button:disabled { opacity: 0.35; cursor: default; transform: none; }
+button:not(:disabled):hover { opacity: 0.82; }

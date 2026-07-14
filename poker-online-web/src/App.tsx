@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { socket } from './socket'
 import { LobbyView } from './views/LobbyView'
 import { TableView } from './views/TableView'
-import './App.css'
+import './styles/base.css'
+import './styles/lobby.css'
+import './styles/table-layout.css'
+import './styles/player-seat.css'
 
 const SESSION_KEY = 'poker_session_token'
 

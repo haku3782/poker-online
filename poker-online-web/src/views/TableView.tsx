@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { socket } from '../socket'
 import type { GameState, PlayerView } from '../types'
 import { CardFace, CardSlot } from '../components/Card'
@@ -28,8 +28,6 @@ export function TableView({ myPlayerId, onLeave }: Props) {
     }
   }
 
-  const handleLeave = useCallback(() => onLeave(), [onLeave])
-
   useEffect(() => {
     const onGameState = (gs: GameState) => {
       setState(gs)
@@ -38,7 +36,6 @@ export function TableView({ myPlayerId, onLeave }: Props) {
       setActionTaken(false)
     }
     const onError = (e: { message: string }) => setErrorMsg(e.message)
-    const onRoomLeft = () => handleLeave()
     const onActionTaken = ({ playerId, action, amount }: { playerId: string; action: string; amount?: number }) => {
       const text = actionLabel(action, amount)
       const expiry = Date.now() + 2000
@@ -56,17 +53,17 @@ export function TableView({ myPlayerId, onLeave }: Props) {
 
     socket.on('game_state', onGameState)
     socket.on('error', onError)
-    socket.on('room_left', onRoomLeft)
+    socket.on('room_left', onLeave)
     socket.on('action_taken', onActionTaken)
     // Guard against the race where game_state fires before this effect runs
     socket.emit('request_game_state')
     return () => {
       socket.off('game_state', onGameState)
       socket.off('error', onError)
-      socket.off('room_left', onRoomLeft)
+      socket.off('room_left', onLeave)
       socket.off('action_taken', onActionTaken)
     }
-  }, [handleLeave])
+  }, [onLeave])
 
   if (!state) {
     return (

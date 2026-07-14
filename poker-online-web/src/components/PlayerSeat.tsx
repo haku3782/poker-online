@@ -13,15 +13,24 @@ interface Props {
   isWinner?: boolean
 }
 
+function renderHoleCards(player: PlayerView) {
+  if (player.isSpectating) return [<CardSlot key={0} />, <CardSlot key={1} />]
+  if (player.holeCards && player.holeCards.length > 0) {
+    return player.holeCards.map((c, i) => <CardFace key={i} card={c} />)
+  }
+  if (player.holeCards !== undefined || player.hasFolded) {
+    return [<CardSlot key={0} />, <CardSlot key={1} />]
+  }
+  return [<CardBack key={0} />, <CardBack key={1} />]
+}
+
 export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTimeoutMs, timerPosition, lastAction, isWinner }: Props) {
   const classes = [
     'player-seat',
     compact && 'compact',
-    isActive && 'active',
     player.hasFolded && 'folded',
     player.isSpectating && 'spectating',
     isMe && 'me',
-    isDealer && 'dealer',
     isWinner && 'winner',
   ].filter(Boolean).join(' ')
 
@@ -34,17 +43,9 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTime
     : null
 
   if (compact) {
-    const revealedCards = player.holeCards && player.holeCards.length > 0
     const cards = (
       <div className="seat-cards">
-        {player.isSpectating
-          ? [<CardSlot key={0} />, <CardSlot key={1} />]
-          : revealedCards
-          ? player.holeCards!.map((c, i) => <CardFace key={i} card={c} />)
-          : player.hasFolded
-          ? [<CardSlot key={0} />, <CardSlot key={1} />]
-          : [<CardBack key={0} />, <CardBack key={1} />]
-        }
+        {renderHoleCards(player)}
       </div>
     )
     const info = (
@@ -109,17 +110,7 @@ export function PlayerSeat({ player, isActive, isMe, isDealer, compact, turnTime
     <div className={classes}>
       {isDealer && <span className="dealer-btn">D</span>}
       <div className="seat-cards">
-        {player.isSpectating ? (
-          [<CardSlot key={0} />, <CardSlot key={1} />]
-        ) : player.holeCards !== undefined ? (
-          player.holeCards.length > 0 ? (
-            player.holeCards.map((c, i) => <CardFace key={i} card={c} />)
-          ) : (
-            [<CardSlot key={0} />, <CardSlot key={1} />]
-          )
-        ) : (
-          [<CardBack key={0} />, <CardBack key={1} />]
-        )}
+        {renderHoleCards(player)}
       </div>
       <div className="seat-info">
         <div className="seat-row">

@@ -1,10 +1,10 @@
 import type { Card } from '../types'
 
-export function suitSymbol(suit: Card['suit']): string {
+function suitSymbol(suit: Card['suit']): string {
   return { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' }[suit]
 }
 
-export function rankLabel(rank: number): string {
+function rankLabel(rank: number): string {
   const face: Record<number, string> = { 11: 'J', 12: 'Q', 13: 'K', 14: 'A' }
   return face[rank] ?? String(rank)
 }

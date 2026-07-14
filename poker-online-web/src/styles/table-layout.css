@@ -1,0 +1,378 @@
+/* ===== TABLE LAYOUT ===== */
+.table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 0.5rem 1rem 1.5rem;
+  max-width: 580px;
+  margin: 0 auto;
+  gap: 0.6rem;
+  --card-w: 1.6rem;
+  --card-h: 2.3rem;
+}
+@media (min-width: 430px) { .table { --card-w: 2.0rem; --card-h: 2.9rem; } }
+@media (min-width: 580px) { .table { --card-w: 2.5rem; --card-h: 3.5rem; } }
+
+.loading { padding: 2rem; text-align: center; color: #667; }
+
+/* Waiting screen (before game starts) */
+.waiting-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2.5rem 1.5rem 5rem;
+  text-align: center;
+  max-width: 460px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+  min-height: 0;
+}
+.waiting-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+.waiting-sub {
+  color: #bbb;
+  font-size: 0.9rem;
+}
+.waiting-room-id {
+  font-size: 0.85rem;
+  color: #bbb;
+}
+.waiting-room-id code {
+  display: block;
+  margin-top: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(255,255,255,0.07);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  color: #e8e8e8;
+  word-break: break-all;
+}
+.waiting-count {
+  font-size: 0.9rem;
+  color: #bbb;
+  font-weight: 600;
+}
+.waiting-player-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+  max-width: 260px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.waiting-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding-bottom: 0.5rem;
+}
+.waiting-player-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.75rem;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: #ccc;
+}
+.waiting-player-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.player-badge {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+}
+.ready-indicator {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #556;
+}
+.ready-indicator.ready { color: #60d080; }
+.btn-ready {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.5);
+  width: 100%;
+  max-width: 260px;
+  line-height: 1;
+  height: 2.5rem;
+}
+.btn-ready.active {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+.waiting-hint {
+  font-size: 0.82rem;
+  color: #556;
+  font-style: italic;
+}
+
+/* Header */
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.75rem 0.4rem;
+  background: transparent;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.header-room { color: rgba(255,255,255,0.45); font-size: 0.78rem; }
+.btn-leave {
+  background: none;
+  border: 1px solid #aaa;
+  color: #e0e0e0;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8rem;
+  margin-left: auto;
+}
+.btn-leave:hover { border-color: #f55; color: #f55; }
+
+/* ===== UNIFIED TABLE FELT ===== */
+.table-felt {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at center, #2d8a50 0%, #1a5c35 55%, #0d3320 100%);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 3px solid #111;
+  box-shadow: 0 5px 0 14px #1a1a1a, 0 12px 40px rgba(0,0,0,0.9);
+}
+
+/* ===== FELT AREA (oval table) ===== */
+.felt-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  overflow: hidden;
+}
+
+/* Top opponents row */
+.felt-top {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.felt-top-slot {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+.felt-top-slot .player-seat.compact {
+  width: 100%;
+  max-width: 8rem;
+}
+
+/* Center row */
+.felt-center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Side seat pockets — always visible, wider on large screens */
+.felt-side {
+  width: 5.0rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.felt-side .player-seat.compact {
+  width: 100%;
+  height: auto;
+  min-height: 4rem;
+}
+.felt-side-left .player-seat.compact {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.felt-side-right .player-seat.compact {
+  flex-direction: column;
+  align-items: flex-end;
+}
+.felt-side-left .seat-info  { align-items: flex-start; }
+.felt-side-right .seat-info { align-items: flex-end; }
+.felt-side .player-seat.compact .seat-cards {
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.felt-side-left .player-seat.compact .seat-cards  { margin-left: 0.4rem; }
+.felt-side-right .player-seat.compact .seat-cards { margin-right: 0.4rem; }
+
+/* カードごとに回転（コンテナは縦並びのまま） */
+.felt-side-left .player-seat.compact .seat-cards .card {
+  transform: rotate(90deg);
+  margin: calc((var(--card-w) - var(--card-h)) / 2) 0;
+}
+.felt-side-right .player-seat.compact .seat-cards .card {
+  transform: rotate(-90deg);
+  margin: calc((var(--card-w) - var(--card-h)) / 2) 0;
+}
+
+/* Side seats: vertical stacking to fit in narrow column */
+.felt-side .seat-info { gap: 0.08rem; }
+.felt-side .seat-row { flex-direction: row; gap: 0.2rem; min-height: 0; flex-wrap: nowrap; }
+.felt-side .seat-chips { font-size: 0.75rem; }
+
+@media (min-width: 430px) {
+  .felt-side { width: 6.0rem; }
+  .felt-side .seat-row { flex-direction: row; gap: 0.4rem; min-height: 1.1rem; }
+  .felt-side .seat-chips { font-size: 0.75rem; }
+  .felt-side .seat-bet { display: inline; }
+}
+@media (min-width: 580px) {
+  .felt-side { width: 6.5rem; }
+}
+
+/* Community cards in center */
+.felt-community {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.community-info {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.82rem;
+}
+.community-pot { color: var(--gold); font-weight: 700; }
+
+/* Bottom section: status + my seat */
+.felt-bottom {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+/* Community (inside felt-community) */
+.community-label { font-size: 0.75rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.45); }
+.community-cards { display: flex; gap: 0.25rem; }
+.community-bet   { font-size: 0.8rem; color: var(--gold); }
+
+/* Status area (hand result / turn indicator) */
+.community-status {
+  min-height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hand-result {
+  color: var(--gold);
+  font-weight: 600;
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.turn-indicator { text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.45); padding: 0.2rem; }
+.turn-indicator.my-turn { color: var(--gold); font-weight: 600; }
+
+/* My area */
+.my-area {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex-shrink: 0;
+}
+.my-area .player-seat { height: auto; }
+.my-area .player-seat.compact { width: 8rem; }
+.my-area .seat-row-dealer { min-height: 1.4rem; transform: translateY(-0.8rem); }
+
+/* Dealer button positional overrides (layout context) */
+/* 左サイド: カードの右側（コミュニティ側）に absolute で配置 */
+.felt-side-left .player-seat.compact .dealer-btn {
+  position: absolute;
+  top: 50%;
+  right: -0.5rem;
+  left: auto;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+/* 右サイド: カードの左側（コミュニティ側）に absolute で配置 */
+.felt-side-right .player-seat.compact .dealer-btn {
+  position: absolute;
+  top: 50%;
+  left: -0.5rem;
+  right: auto;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.spectating-banner { text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.45); padding: 0.2rem; }
+
+/* Error */
+.error-msg {
+  text-align: center;
+  color: #f76;
+  font-size: 0.82rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255,80,60,0.1);
+  border-radius: 6px;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem 0.1rem;
+  height: 6rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.btn-start {
+  background: #ffffff;
+  color: #111;
+  width: 100%;
+  max-width: 260px;
+  height: 2.5rem;
+  line-height: 1;
+  font-size: 0.9rem;
+}
+.action-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+.action-buttons button { flex: 1; min-width: 0; white-space: nowrap; }
