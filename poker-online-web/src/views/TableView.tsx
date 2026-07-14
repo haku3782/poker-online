@@ -159,9 +159,23 @@ export function TableView({ myPlayerId, onLeave }: Props) {
 
   const isShowdown = state.bettingRound === 'showdown'
   const canStart = state.bettingRound === 'showdown' && players.length >= 2
-const winnerIds = isShowdown && state.lastHandResult
+  const isWaitingForPlayers = isShowdown && !state.autoStartAt
+  const winnerIds = isShowdown && state.lastHandResult
     ? new Set(state.lastHandResult.pots.flatMap(pot => pot.winnerIds))
     : new Set<string>()
+  const playerWinnings: [string, number][] = (isShowdown && state.lastHandResult)
+    ? (() => {
+        const totals = new Map<string, number>()
+        state.lastHandResult!.pots.forEach((pot) => {
+          const share = Math.floor(pot.amount / pot.winnerIds.length)
+          const remainder = pot.amount - share * pot.winnerIds.length
+          pot.winnerIds.forEach((id, idx) => {
+            totals.set(id, (totals.get(id) ?? 0) + share + (idx < remainder ? 1 : 0))
+          })
+        })
+        return Array.from(totals.entries())
+      })()
+    : []
   const canSeeButtons = !!me && !me.isAllIn && !me.isSpectating && state.status === 'playing' && !isShowdown
 
   function act(type: string, amount?: number) {
@@ -244,11 +258,16 @@ const winnerIds = isShowdown && state.lastHandResult
 
           <div className="felt-community">
             <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-              <span className="community-label">{state.bettingRound.toUpperCase()}</span>
+              <span className="community-label">
+                {isWaitingForPlayers
+                  ? 'Waiting for players...'
+                  : state.bettingRound.toUpperCase()
+                }
+              </span>
               <svg
                 key={state.autoStartAt ?? 0}
                 width="16" height="16" viewBox="0 0 16 16"
-                style={{ position: 'absolute', left: '100%', marginLeft: '0.4rem', transform: 'rotate(-90deg) scaleX(-1)', visibility: canStart ? 'visible' : 'hidden' }}
+                style={{ position: 'absolute', left: '100%', marginLeft: '0.4rem', transform: 'rotate(-90deg) scaleX(-1)', visibility: canStart && !isWaitingForPlayers ? 'visible' : 'hidden' }}
               >
                 <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2"/>
                 <circle
@@ -280,11 +299,9 @@ const winnerIds = isShowdown && state.lastHandResult
             <div className="community-status">
               {isShowdown && state.lastHandResult
                 ? <div className="hand-result">
-                    {state.lastHandResult.pots.map((pot, i) => {
-                      const names = pot.winnerIds
-                        .map((id) => state.slots.find((p) => p?.id === id)?.name ?? id)
-                        .join(', ')
-                      return <div key={i}>{names} wins {pot.amount} chips</div>
+                    {playerWinnings.map(([id, amount], i) => {
+                      const name = state.slots.find((p) => p?.id === id)?.name ?? id
+                      return <div key={i}>{name} wins {amount} chips</div>
                     })}
                   </div>
                 : me?.isSpectating

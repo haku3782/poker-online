@@ -93,13 +93,13 @@ function doLeave(io: Server, info: { roomId: string; playerId: string }, manager
   manager.leaveRoom(info.roomId, info.playerId)
 
   if (manager.getRoom(info.roomId)) {
-    broadcastGameState(io, info.roomId, manager)
     const r = manager.getRoom(info.roomId)!
     if (r.status === 'playing' && r.bettingRound === 'showdown') {
       setNextHandTimer(io, info.roomId, manager)
     } else {
       setTurnTimer(io, info.roomId, manager)
     }
+    broadcastGameState(io, info.roomId, manager)
   } else {
     clearTurnTimer(info.roomId)
     clearNextHandTimer(info.roomId, manager)
@@ -171,10 +171,10 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
         socketToPlayer.set(socket.id, { roomId, playerId: player.id })
         socket.join(roomId)
         socket.emit('room_joined', { roomId, playerId: player.id, seat: player.seat, sessionToken: token })
-        broadcastGameState(io, roomId, manager)
         if (room.status === 'playing' && room.bettingRound === 'showdown' && !nextHandTimers.has(roomId)) {
           setNextHandTimer(io, roomId, manager)
         }
+        broadcastGameState(io, roomId, manager)
         broadcastRoomsList(io, manager)
       } catch (err) {
         socket.emit('error', { message: (err as Error).message })
@@ -304,12 +304,12 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
         amount: type === 'raise' ? amount : type === 'call' ? callAmount : undefined,
       })
 
-      broadcastGameState(io, info.roomId, manager)
       if (room.bettingRound === 'showdown') {
         setNextHandTimer(io, info.roomId, manager)
       } else {
         setTurnTimer(io, info.roomId, manager)
       }
+      broadcastGameState(io, info.roomId, manager)
     } catch (err) {
       socket.emit('error', { message: (err as Error).message })
     }
