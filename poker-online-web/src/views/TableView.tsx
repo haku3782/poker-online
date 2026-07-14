@@ -356,7 +356,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
       {/* Actions — inside table rim */}
       <div className="actions">
 
-        {me && me.chips === 0 && (isShowdown || state.status === 'waiting' || me.isSpectating) && (
+        {me && me.chips === 0 && (isShowdown || me.isSpectating) && (
           <button className="btn-rebuy" onClick={() => socket.emit('rebuy')}>
             ↩ Rebuy ({state.defaultStartingChips} chips)
           </button>
