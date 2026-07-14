@@ -16,7 +16,6 @@ export interface EvaluatedHand {
   category: HandCategory
   // Tiebreaker ranks in priority order (e.g. full house: [tripsRank, pairRank]).
   ranks: Rank[]
-  cards: Card[]
 }
 
 function combinations<T>(items: T[], size: number): T[][] {
@@ -66,30 +65,30 @@ function evaluateFive(cards: Card[]): EvaluatedHand {
   const ranksHighToLow = cards.map((card) => card.rank).sort((a, b) => b - a)
 
   if (straightHigh !== null && flush) {
-    return { category: HandCategory.StraightFlush, ranks: [straightHigh], cards }
+    return { category: HandCategory.StraightFlush, ranks: [straightHigh] }
   }
   if (counts[0] === 4) {
-    return { category: HandCategory.FourOfAKind, ranks: ranksByCountThenRank, cards }
+    return { category: HandCategory.FourOfAKind, ranks: ranksByCountThenRank }
   }
   if (counts[0] === 3 && counts[1] === 2) {
-    return { category: HandCategory.FullHouse, ranks: ranksByCountThenRank, cards }
+    return { category: HandCategory.FullHouse, ranks: ranksByCountThenRank }
   }
   if (flush) {
-    return { category: HandCategory.Flush, ranks: ranksHighToLow, cards }
+    return { category: HandCategory.Flush, ranks: ranksHighToLow }
   }
   if (straightHigh !== null) {
-    return { category: HandCategory.Straight, ranks: [straightHigh], cards }
+    return { category: HandCategory.Straight, ranks: [straightHigh] }
   }
   if (counts[0] === 3) {
-    return { category: HandCategory.ThreeOfAKind, ranks: ranksByCountThenRank, cards }
+    return { category: HandCategory.ThreeOfAKind, ranks: ranksByCountThenRank }
   }
   if (counts[0] === 2 && counts[1] === 2) {
-    return { category: HandCategory.TwoPair, ranks: ranksByCountThenRank, cards }
+    return { category: HandCategory.TwoPair, ranks: ranksByCountThenRank }
   }
   if (counts[0] === 2) {
-    return { category: HandCategory.Pair, ranks: ranksByCountThenRank, cards }
+    return { category: HandCategory.Pair, ranks: ranksByCountThenRank }
   }
-  return { category: HandCategory.HighCard, ranks: ranksHighToLow, cards }
+  return { category: HandCategory.HighCard, ranks: ranksHighToLow }
 }
 
 // Positive if `a` wins, negative if `b` wins, 0 on a tie.
