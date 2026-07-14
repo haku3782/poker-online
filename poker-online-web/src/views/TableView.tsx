@@ -288,7 +288,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
                     })}
                   </div>
                 : me?.isSpectating
-                ? <div className="spectating-banner">Watching</div>
+                ? <div className="spectating-banner">Joining next hand</div>
                 : state.status === 'playing' && !me?.isSpectating
                 ? <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
                     {isMyTurn ? 'Your turn' : `Waiting for ${actingPlayer?.name ?? '…'}`}
@@ -339,7 +339,7 @@ export function TableView({ myPlayerId, onLeave }: Props) {
       {/* Actions — inside table rim */}
       <div className="actions">
 
-        {me && me.chips === 0 && (isShowdown || state.status === 'waiting') && (
+        {me && me.chips === 0 && (isShowdown || state.status === 'waiting' || me.isSpectating) && (
           <button className="btn-rebuy" onClick={() => socket.emit('rebuy')}>
             ↩ Rebuy ({state.defaultStartingChips} chips)
           </button>

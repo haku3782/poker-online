@@ -800,15 +800,7 @@ button:not(:disabled):hover { opacity: 0.82; }
 
 .player-seat.spectating { opacity: 0.55; }
 
-.spectating-banner {
-  text-align: center;
-  padding: 0.5rem 0.75rem;
-  background: rgba(80,80,180,0.15);
-  border: 1px solid #334;
-  border-radius: 7px;
-  font-size: 0.82rem;
-  color: #99b;
-}
+.spectating-banner { text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.45); padding: 0.2rem; }
 
 /* Cards */
 .card {
