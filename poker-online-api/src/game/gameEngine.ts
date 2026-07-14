@@ -5,18 +5,13 @@ import { awardPots, calculateSidePots } from './sidePots.js'
 
 export type ActionType = 'fold' | 'check' | 'call' | 'raise' | 'allin'
 
-export interface PlayerAction {
+interface PlayerAction {
   type: ActionType
   // Total bet level the player wants to reach (required for 'raise').
   amount?: number
 }
 
 const STREET_ORDER: BettingRound[] = ['preflop', 'flop', 'turn', 'river']
-
-// Returns non-null players in slot order (slot 0 → slot N-1).
-function seatOrder(room: Room): Player[] {
-  return room.slots.filter((p): p is Player => p !== null)
-}
 
 // Returns all non-folded, non-spectating players.
 function activePlayers(room: Room): Player[] {
@@ -200,43 +195,38 @@ function advanceHandState(room: Room): void {
 
 function nextPlayerToAct(room: Room): string {
   const currentSlot = room.slots.findIndex((p) => p?.id === room.currentTurnPlayerId)
-  for (let i = 1; i <= room.slots.length; i++) {
-    const idx = (currentSlot + i) % room.slots.length
-    const p = room.slots[idx]
-    if (p && room.playersToAct.includes(p.id)) return p.id
-  }
-  throw new Error('No player left to act')
+  const next = firstToActAfter(room, currentSlot, (p) => room.playersToAct.includes(p.id))
+  if (next === null) throw new Error('No player left to act')
+  return next
 }
 
 function advanceToNextStreet(room: Room): void {
-  const nextRound = STREET_ORDER[STREET_ORDER.indexOf(room.bettingRound) + 1]
-  room.bettingRound = nextRound
+  while (true) {
+    const nextRound = STREET_ORDER[STREET_ORDER.indexOf(room.bettingRound) + 1]
+    room.bettingRound = nextRound
 
-  const dealCount = nextRound === 'flop' ? 3 : 1
-  for (let i = 0; i < dealCount; i++) {
-    room.communityCards.push(room.deck.pop()!)
-  }
+    const dealCount = nextRound === 'flop' ? 3 : 1
+    for (let i = 0; i < dealCount; i++) {
+      room.communityCards.push(room.deck.pop()!)
+    }
 
-  for (const player of room.slots) {
-    if (player) player.currentBet = 0
-  }
-  room.currentBetLevel = 0
+    for (const player of room.slots) {
+      if (player) player.currentBet = 0
+    }
+    room.currentBetLevel = 0
 
-  const actable = playersWhoCanAct(room)
-  if (actable.length < 2) {
-    // Nobody left can bet — run out remaining streets to showdown.
+    const actable = playersWhoCanAct(room)
+    if (actable.length >= 2) {
+      room.playersToAct = actable.map((p) => p.id)
+      room.currentTurnPlayerId = firstToActAfter(room, room.dealerIndex, (p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
+      if (room.currentTurnPlayerId === null) finishHandAtShowdown(room)
+      return
+    }
+
     if (room.bettingRound === 'river') {
       finishHandAtShowdown(room)
-    } else {
-      advanceToNextStreet(room)
+      return
     }
-    return
-  }
-
-  room.playersToAct = actable.map((p) => p.id)
-  room.currentTurnPlayerId = firstToActAfter(room, room.dealerIndex, (p) => !p.hasFolded && !p.isAllIn && !p.isSpectating)
-  if (room.currentTurnPlayerId === null) {
-    finishHandAtShowdown(room)
   }
 }
 

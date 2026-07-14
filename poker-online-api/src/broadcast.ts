@@ -2,6 +2,8 @@ import type { Server } from 'socket.io'
 import type { RoomManager } from './game/room.js'
 import { socketToPlayer } from './session.js'
 import { evaluateHand, HandCategory } from './game/handEvaluator.js'
+import type { Player } from './game/player.js'
+import type { Card } from './game/card.js'
 
 const HAND_NAMES: Record<HandCategory, string> = {
   [HandCategory.HighCard]: 'High Card',
@@ -13,6 +15,12 @@ const HAND_NAMES: Record<HandCategory, string> = {
   [HandCategory.FullHouse]: 'Full House',
   [HandCategory.FourOfAKind]: 'Four of a Kind',
   [HandCategory.StraightFlush]: 'Straight Flush',
+}
+
+function getHandRank(player: Player, communityCards: Card[]): string | undefined {
+  if (player.hasFolded || player.isSpectating || player.holeCards.length === 0) return undefined
+  const allCards = [...player.holeCards, ...communityCards]
+  return allCards.length >= 5 ? HAND_NAMES[evaluateHand(allCards).category] : undefined
 }
 
 export function broadcastRoomsList(io: Server, manager: RoomManager): void {
@@ -73,21 +81,13 @@ export function broadcastGameState(io: Server, roomId: string, manager: RoomMana
       slots: baseSlots.map((p) => {
         if (!p) return null
         if (p.id === info.playerId && ownPlayer) {
-          let handRank: string | undefined
-          if (room.bettingRound === 'showdown' && !ownPlayer.hasFolded && !ownPlayer.isSpectating && ownPlayer.holeCards.length > 0) {
-            const allCards = [...ownPlayer.holeCards, ...room.communityCards]
-            if (allCards.length >= 5) handRank = HAND_NAMES[evaluateHand(allCards).category]
-          }
+          const handRank = room.bettingRound === 'showdown' ? getHandRank(ownPlayer, room.communityCards) : undefined
           return { ...p, holeCards: ownPlayer.holeCards, handRank }
         }
         if (room.bettingRound === 'showdown') {
           const rp = room.slots.find((x) => x?.id === p.id)
           if (rp && !rp.hasFolded && !rp.isSpectating && rp.holeCards.length > 0) {
-            const allCards = [...rp.holeCards, ...room.communityCards]
-            const handRank = allCards.length >= 5
-              ? HAND_NAMES[evaluateHand(allCards).category]
-              : undefined
-            return { ...p, holeCards: rp.holeCards, handRank }
+            return { ...p, holeCards: rp.holeCards, handRank: getHandRank(rp, room.communityCards) }
           }
         }
         return p

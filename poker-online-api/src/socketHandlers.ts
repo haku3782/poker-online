@@ -123,6 +123,21 @@ function handleLeave(io: Server, socket: Socket, manager: RoomManager): void {
 }
 
 export function registerHandlers(io: Server, socket: Socket, manager: RoomManager): void {
+  function getContext() {
+    const info = socketToPlayer.get(socket.id)
+    if (!info) throw new Error('Not in a room')
+    const room = manager.getRoom(info.roomId)
+    if (!room) throw new Error('Room not found')
+    return { info, room }
+  }
+
+  function getContextWithPlayer() {
+    const { info, room } = getContext()
+    const player = room.slots.find((p) => p?.id === info.playerId)
+    if (!player) throw new Error('Player not found')
+    return { info, room, player }
+  }
+
   socket.on('list_rooms', () => {
     socket.emit('rooms_list', manager.listRooms())
   })
@@ -213,13 +228,8 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
 
   socket.on('set_ready', () => {
     try {
-      const info = socketToPlayer.get(socket.id)
-      if (!info) throw new Error('Not in a room')
-      const room = manager.getRoom(info.roomId)
-      if (!room) throw new Error('Room not found')
+      const { info, room, player } = getContextWithPlayer()
       if (room.status !== 'waiting') throw new Error('Game already started')
-      const player = room.slots.find((p) => p?.id === info.playerId)
-      if (!player) throw new Error('Player not found')
       player.isReady = !player.isReady
       broadcastGameState(io, info.roomId, manager)
     } catch (err) {
@@ -229,12 +239,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
 
   socket.on('rebuy', () => {
     try {
-      const info = socketToPlayer.get(socket.id)
-      if (!info) throw new Error('Not in a room')
-      const room = manager.getRoom(info.roomId)
-      if (!room) throw new Error('Room not found')
-      const player = room.slots.find((p) => p?.id === info.playerId)
-      if (!player) throw new Error('Player not found')
+      const { info, room, player } = getContextWithPlayer()
       if (player.chips > 0) throw new Error('Cannot rebuy with chips remaining')
       if (!player.isSpectating && room.status === 'playing' && room.bettingRound !== 'showdown') throw new Error('Cannot rebuy during a hand')
       player.chips = room.defaultStartingChips
@@ -252,10 +257,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
 
   socket.on('start_game', () => {
     try {
-      const info = socketToPlayer.get(socket.id)
-      if (!info) throw new Error('Not in a room')
-      const room = manager.getRoom(info.roomId)
-      if (!room) throw new Error('Room not found')
+      const { info, room } = getContext()
       if (room.status === 'playing' && room.bettingRound !== 'showdown') {
         throw new Error('Game already in progress')
       }
@@ -285,10 +287,7 @@ export function registerHandlers(io: Server, socket: Socket, manager: RoomManage
 
   socket.on('player_action', ({ type, amount }: { type: ActionType; amount?: number }) => {
     try {
-      const info = socketToPlayer.get(socket.id)
-      if (!info) throw new Error('Not in a room')
-      const room = manager.getRoom(info.roomId)
-      if (!room) throw new Error('Room not found')
+      const { info, room } = getContext()
 
       const player = room.slots.find(p => p?.id === info.playerId)
       const callAmount = type === 'call' && player
