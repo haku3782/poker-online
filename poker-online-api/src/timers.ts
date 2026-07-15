@@ -67,8 +67,12 @@ export function setTurnTimer(io: Server, roomId: string, manager: RoomManager): 
     if (!r || r.currentTurnPlayerId !== playerId) return
     try {
       applyAction(r, playerId, { type: 'fold' })
+      if (r.bettingRound === 'showdown') {
+        setNextHandTimer(io, roomId, manager)
+      } else {
+        setTurnTimer(io, roomId, manager)
+      }
       broadcastGameState(io, roomId, manager)
-      setTurnTimer(io, roomId, manager)
     } catch {
       // hand may have ended between timer set and fire
     }
