@@ -55,11 +55,18 @@ function App() {
     }
   }, [])
 
-  if (screen === 'table' && myPlayerId) {
-    return <TableView myPlayerId={myPlayerId} onLeave={handleLeave} />
-  }
-
-  return <LobbyView onJoined={handleJoined} />
+  return (
+    <>
+      <div className="orientation-overlay">
+        <span className="orientation-icon">↕</span>
+        <p>画面を縦にしてください</p>
+      </div>
+      {screen === 'table' && myPlayerId
+        ? <TableView myPlayerId={myPlayerId} onLeave={handleLeave} />
+        : <LobbyView onJoined={handleJoined} />
+      }
+    </>
+  )
 }
 
 export default App

@@ -28,6 +28,26 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
 }
 
+.orientation-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--felt-dark);
+  color: #e0e0e0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+}
+.orientation-icon { font-size: 2.5rem; }
+.orientation-overlay p { font-size: 1rem; color: #aaa; }
+
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .orientation-overlay { display: flex; }
+}
+
 button {
   padding: 0.55rem 1rem;
   border-radius: 6px;
